@@ -17,16 +17,13 @@ This document explains how to create an MSIX installer for Differ so Windows use
 
 ## Option A: Visual Studio Packaging Project (recommended)
 
-1. **Add a new project**: `File > Add > New Project > Windows Application Packaging Project` and name it `Differ.Package`.
-2. **Choose minimum/target version**: set both to Windows 10, version 19041 (or higher) to match your audience.
-3. **Reference the WPF project**: right-click the packaging project ➜ `Add Reference…` ➜ select `Differ.App`.
-4. **Configure the manifest** (`Package.appxmanifest`):
-   - Identity: set `Name`, `Publisher`, and `Version` (keep in sync with your semantic versioning).
-   - Visual assets: provide logo and tile images (store in `Differ.Package/Images`).
-   - Capabilities: Desktop apps typically need none beyond the defaults.
-5. **App installer (optional)**: enable `Generate app installer file` for easy web distribution.
-6. **Build**: select `Release | x64`, then `Build > Publish > Create App Packages…` and follow the wizard to generate an `.msixbundle`.
-7. **Sign**: Visual Studio can sign automatically if you provide a certificate. Otherwise, sign manually (see below).
+The repository already includes `Differ.Package`, a Windows Application Packaging Project wired to the WPF app. Simply open `Differ.sln` in Visual Studio and you are ready to create MSIX bundles.
+
+1. **Review metadata**: open `src/Differ.Package/Package.appxmanifest` and update the Identity (`Name`, `Publisher`, `Version`) before each release.
+2. **Assets**: customize the logos in `src/Differ.Package/Images/`. Run `scripts/refresh-packaging-assets.ps1` if you need to regenerate placeholders.
+3. **Build configuration**: switch to `Release | x64` (or the platform you plan to distribute).
+4. **Publish**: choose `Build > Publish > Create App Packages…` and follow the wizard to produce an `.msixbundle`.
+5. **Sign**: let Visual Studio sign with your certificate, or sign the generated MSIX manually (see below).
 
 ## Option B: Command-line Packaging from Published Output
 
@@ -70,19 +67,19 @@ The repository includes a PowerShell script that wraps Option B and handles mani
 
 2. Run the helper script (PowerShell or Windows Terminal):
 
-   ```powershell
-   pwsh ./scripts/create-msix.ps1 `
-     -PublishDir "src/Differ.App/bin/Release/net8.0/win-x64/publish" `
-     -OutputDir "artifacts" `
-     -PackageName "csseeker.Differ" `
-     -Publisher "CN=Your Company" `
-     -PublisherDisplayName "Your Company" `
-     -DisplayName "Differ" `
-     -Description "Compare directories and files quickly." `
-     -ApplicationId "Differ" `
-     -Version "1.0.0.0" `
-     -Architecture "x64"
-   ```
+    ```powershell
+    powershell -NoProfile -ExecutionPolicy Bypass -File scripts/create-msix.ps1 `
+       -PublishDir "src/Differ.App/bin/Release/net8.0/win-x64/publish" `
+       -OutputDir "artifacts" `
+       -PackageName "csseeker.Differ" `
+   -Publisher "CN=csseeker" `
+       -PublisherDisplayName "csseeker" `
+       -DisplayName "Differ" `
+       -Description "Compare directories and files quickly." `
+       -ApplicationId "Differ" `
+       -Version "1.0.0.0" `
+       -Architecture "x64"
+    ```
 
    Adjust the metadata to match your signing certificate and desired identity. The script:
 

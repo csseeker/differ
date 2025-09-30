@@ -61,13 +61,16 @@ The publish step emits `DifferApp.exe` under `src/Differ.App/bin/Release/net8.0/
      ```
 
      Replace `v1.2.0` with the version you are shipping.
-   - To generate an MSIX, run the helper script:
+   - To generate an MSIX, either
+     - Build the `Differ.Package` project in Visual Studio (`Release | x64`, then `Build > Publish > Create App Packages…`).
+     - **or** run the helper script:
 
-     ```powershell
-     pwsh ./scripts/create-msix.ps1 -Version "1.2.0.0" -PackageName "csseeker.Differ" -Publisher "CN=Your Company" -PublisherDisplayName "Your Company"
-     ```
+       ```powershell
+  powershell -NoProfile -ExecutionPolicy Bypass -File scripts/refresh-packaging-assets.ps1
+  powershell -NoProfile -ExecutionPolicy Bypass -File scripts/create-msix.ps1 -Version "1.2.0.0" -PackageName "csseeker.Differ" -Publisher "CN=csseeker" -PublisherDisplayName "csseeker"
+       ```
 
-     Supply additional parameters (e.g., `-Sign`) as needed. See `docs/MSIX_PACKAGING.md` for full options.
+       Supply additional parameters (e.g., `-Sign`) as needed. See `docs/MSIX_PACKAGING.md` for full options.
    - Collect supporting files (e.g., `coverage.cobertura.xml`, screenshots) into the same folder for upload.
 
 4. Create a GitHub Release manually:

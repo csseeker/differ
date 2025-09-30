@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\DesktopBridge\Microsoft.DesktopBridge.props" Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\DesktopBridge\Microsoft.DesktopBridge.props')" />
+
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{E5F6A7B8-C9D0-4E1F-A2B3-C4D5E6F7A8B9}</ProjectGuid>
+    <SourceProjectGuid>{C3D4E5F6-G7H8-9012-CDEF-345678901234}</SourceProjectGuid>
+    <TargetPlatformVersion>10.0.19041.0</TargetPlatformVersion>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <AppxPackage>true</AppxPackage>
+    <AppxBundle>Always</AppxBundle>
+  <AppxBundlePlatforms>x64</AppxBundlePlatforms>
+    <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
+    <GenerateAppInstallerFile>false</GenerateAppInstallerFile>
+    <AppxPackageSigningEnabled>false</AppxPackageSigningEnabled>
+    <EntryPointProjectUniqueName>..\Differ.App\Differ.App.csproj</EntryPointProjectUniqueName>
+    <EntryPointProjectType>None</EntryPointProjectType>
+    <EntryPointProjectTargetPlatformIdentifier>WindowsClassicDesktop</EntryPointProjectTargetPlatformIdentifier>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AppxManifest Include="Package.appxmanifest">
+      <SubType>Designer</SubType>
+    </AppxManifest>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Images\Square150x150Logo.png" />
+    <Content Include="Images\Square44x44Logo.png" />
+    <Content Include="Images\Wide310x150Logo.png" />
+    <Content Include="Images\StoreLogo.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Differ.App\Differ.App.csproj">
+      <Project>{C3D4E5F6-G7H8-9012-CDEF-345678901234}</Project>
+      <Name>Differ.App</Name>
+    </ProjectReference>
+  </ItemGroup>
+
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\DesktopBridge\Microsoft.DesktopBridge.targets" Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\DesktopBridge\Microsoft.DesktopBridge.targets')" />
+
+  <PropertyGroup Condition="!Exists('$(MSBuildExtensionsPath)\Microsoft\DesktopBridge\Microsoft.DesktopBridge.props')">
+    <DesktopBridgeUnavailable>true</DesktopBridgeUnavailable>
+  </PropertyGroup>
+
+  <Target Name="DesktopBridgeSkip" Condition="'$(DesktopBridgeUnavailable)'=='true'">
+    <Message Importance="High" Text="Desktop Bridge tooling not installed. Skipping Differ.Package build (Visual Studio packaging workload required)." />
+  </Target>
+
+  <Target Name="Build" Condition="'$(DesktopBridgeUnavailable)'=='true'" DependsOnTargets="DesktopBridgeSkip" />
+  <Target Name="Rebuild" Condition="'$(DesktopBridgeUnavailable)'=='true'" DependsOnTargets="DesktopBridgeSkip" />
+  <Target Name="Clean" Condition="'$(DesktopBridgeUnavailable)'=='true'" DependsOnTargets="DesktopBridgeSkip" />
+  <Target Name="VSTest" Condition="'$(DesktopBridgeUnavailable)'=='true'" DependsOnTargets="DesktopBridgeSkip" />
+  <Target Name="Publish" Condition="'$(DesktopBridgeUnavailable)'=='true'" DependsOnTargets="DesktopBridgeSkip" />
+</Project>

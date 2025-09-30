@@ -25,6 +25,7 @@ The application follows a clean, modular architecture with clear separation of c
 - **Differ.UI**: WPF views and ViewModels following MVVM pattern
 - **Differ.App**: Application entry point and dependency injection setup
 - **Differ.Tests**: Comprehensive unit and integration tests
+- **Differ.Package**: Windows Application Packaging Project that builds MSIX installers
 
 ## System Requirements
 
@@ -98,7 +99,7 @@ The application follows a clean, modular architecture with clear separation of c
 - Use `docs/QA.md` as the pre-release validation checklist.
 - Start each release draft from `docs/RELEASE_NOTES_TEMPLATE.md` to keep notes consistent.
 - Package builds manually using the commands in the release playbook, then upload artifacts to GitHub Releases.
-- Generate MSIX installers with `scripts/create-msix.ps1` when you need an installer experience.
+- Generate MSIX installers either by building the `Differ.Package` project in Visual Studio or by running `scripts/create-msix.ps1`.
 
 ## License
 

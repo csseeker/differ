@@ -19,5 +19,9 @@ obj/
 */bin/
 */obj/
 
+# Packaging output
+AppPackages/
+*/AppPackages/
+
 # Visual Studio
 .vs/
