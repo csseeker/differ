@@ -16,5 +16,9 @@
 [Bb]in/
 [Oo]bj/
 
+# Project-wide build artifacts
+**/bin/
+**/obj/
+
 # Visual Studio
 .vs/
