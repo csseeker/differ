@@ -12,13 +12,12 @@
 *.userosscache
 *.sln.docstates
 
-# Build results
-[Bb]in/
-[Oo]bj/
 
 # Project-wide build artifacts
-**/bin/
-**/obj/
+bin/
+obj/
+*/bin/
+*/obj/
 
 # Visual Studio
 .vs/
