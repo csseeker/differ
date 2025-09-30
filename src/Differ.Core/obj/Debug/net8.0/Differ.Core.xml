@@ -1,0 +1,372 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Differ.Core</name>
+    </assembly>
+    <members>
+        <member name="T:Differ.Core.Interfaces.IDirectoryComparisonService">
+            <summary>
+            Defines the contract for the main directory comparison service
+            </summary>
+        </member>
+        <member name="M:Differ.Core.Interfaces.IDirectoryComparisonService.CompareDirectoriesAsync(System.String,System.String,System.Threading.CancellationToken,System.IProgress{System.String})">
+            <summary>
+            Compares two directories asynchronously
+            </summary>
+            <param name="leftDirectoryPath">Path to the first directory</param>
+            <param name="rightDirectoryPath">Path to the second directory</param>
+            <param name="cancellationToken">Token to cancel the operation</param>
+            <param name="progress">Progress reporter for the comparison operation</param>
+            <returns>An operation result containing the comparison results</returns>
+        </member>
+        <member name="T:Differ.Core.Interfaces.IDirectoryScanner">
+            <summary>
+            Defines the contract for scanning directories and retrieving file system items
+            </summary>
+        </member>
+        <member name="M:Differ.Core.Interfaces.IDirectoryScanner.ScanDirectoryAsync(System.String,System.Threading.CancellationToken,System.IProgress{System.String})">
+            <summary>
+            Scans a directory asynchronously and returns all file system items
+            </summary>
+            <param name="directoryPath">The path to the directory to scan</param>
+            <param name="cancellationToken">Token to cancel the operation</param>
+            <param name="progress">Progress reporter for the scanning operation</param>
+            <returns>An operation result containing the list of file system items</returns>
+        </member>
+        <member name="M:Differ.Core.Interfaces.IDirectoryScanner.ValidateDirectoryPath(System.String)">
+            <summary>
+            Validates that a directory path exists and is accessible
+            </summary>
+            <param name="directoryPath">The path to validate</param>
+            <returns>An operation result indicating success or failure</returns>
+        </member>
+        <member name="T:Differ.Core.Interfaces.IFileComparer">
+            <summary>
+            Defines the contract for comparing files using different algorithms
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Interfaces.IFileComparer.Name">
+            <summary>
+            Gets the name of this file comparison algorithm
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Interfaces.IFileComparer.Description">
+            <summary>
+            Gets a description of what this comparer does
+            </summary>
+        </member>
+        <member name="M:Differ.Core.Interfaces.IFileComparer.CompareFilesAsync(System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Compares two files asynchronously
+            </summary>
+            <param name="leftFilePath">Path to the first file</param>
+            <param name="rightFilePath">Path to the second file</param>
+            <param name="cancellationToken">Token to cancel the operation</param>
+            <returns>True if files are identical, false if different</returns>
+        </member>
+        <member name="M:Differ.Core.Interfaces.IFileComparer.CanCompare(System.String,System.String)">
+            <summary>
+            Determines if this comparer can handle the given file types
+            </summary>
+            <param name="leftFilePath">Path to the first file</param>
+            <param name="rightFilePath">Path to the second file</param>
+            <returns>True if this comparer can handle these files</returns>
+        </member>
+        <member name="T:Differ.Core.Models.FileSystemItem">
+            <summary>
+            Represents information about a file system item (file or directory)
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.FileSystemItem.FullPath">
+            <summary>
+            Gets the full path to the item
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.FileSystemItem.Name">
+            <summary>
+            Gets the name of the item (filename or directory name)
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.FileSystemItem.IsDirectory">
+            <summary>
+            Gets a value indicating whether this item is a directory
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.FileSystemItem.Size">
+            <summary>
+            Gets the size of the file in bytes (null for directories)
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.FileSystemItem.LastModified">
+            <summary>
+            Gets the last modified date of the item
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.FileSystemItem.RelativePath">
+            <summary>
+            Gets the relative path from the root comparison directory
+            </summary>
+        </member>
+        <member name="T:Differ.Core.Models.ComparisonStatus">
+            <summary>
+            Represents the status of a file system item in comparison
+            </summary>
+        </member>
+        <member name="F:Differ.Core.Models.ComparisonStatus.LeftOnly">
+            <summary>
+            Item exists only in the left directory
+            </summary>
+        </member>
+        <member name="F:Differ.Core.Models.ComparisonStatus.RightOnly">
+            <summary>
+            Item exists only in the right directory
+            </summary>
+        </member>
+        <member name="F:Differ.Core.Models.ComparisonStatus.Identical">
+            <summary>
+            Item exists in both directories and is identical
+            </summary>
+        </member>
+        <member name="F:Differ.Core.Models.ComparisonStatus.Different">
+            <summary>
+            Item exists in both directories but differs
+            </summary>
+        </member>
+        <member name="F:Differ.Core.Models.ComparisonStatus.Error">
+            <summary>
+            Item comparison failed due to error
+            </summary>
+        </member>
+        <member name="T:Differ.Core.Models.ComparisonItem">
+            <summary>
+            Represents a comparison result for a single file system item
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.ComparisonItem.RelativePath">
+            <summary>
+            Gets the relative path of the item being compared
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.ComparisonItem.LeftItem">
+            <summary>
+            Gets the item from the left directory (null if doesn't exist)
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.ComparisonItem.RightItem">
+            <summary>
+            Gets the item from the right directory (null if doesn't exist)
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.ComparisonItem.Status">
+            <summary>
+            Gets the comparison status
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.ComparisonItem.ErrorMessage">
+            <summary>
+            Gets any error message from comparison (for Error status)
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.ComparisonItem.IsDirectory">
+            <summary>
+            Gets a value indicating whether this item is a directory
+            </summary>
+        </member>
+        <member name="T:Differ.Core.Models.DirectoryComparisonResult">
+            <summary>
+            Represents the complete result of a directory comparison
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.DirectoryComparisonResult.LeftPath">
+            <summary>
+            Gets the path of the left directory
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.DirectoryComparisonResult.RightPath">
+            <summary>
+            Gets the path of the right directory
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.DirectoryComparisonResult.Items">
+            <summary>
+            Gets the comparison items
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.DirectoryComparisonResult.ComparisonTime">
+            <summary>
+            Gets the timestamp when the comparison was performed
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.DirectoryComparisonResult.Summary">
+            <summary>
+            Gets summary statistics for the comparison
+            </summary>
+        </member>
+        <member name="T:Differ.Core.Models.ComparisonSummary">
+            <summary>
+            Provides summary statistics for a directory comparison
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.ComparisonSummary.TotalItems">
+            <summary>
+            Gets the total number of items compared
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.ComparisonSummary.IdenticalItems">
+            <summary>
+            Gets the number of identical items
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.ComparisonSummary.DifferentItems">
+            <summary>
+            Gets the number of different items
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.ComparisonSummary.LeftOnlyItems">
+            <summary>
+            Gets the number of items that exist only in the left directory
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.ComparisonSummary.RightOnlyItems">
+            <summary>
+            Gets the number of items that exist only in the right directory
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.ComparisonSummary.ErrorItems">
+            <summary>
+            Gets the number of items that had comparison errors
+            </summary>
+        </member>
+        <member name="T:Differ.Core.Models.OperationResult`1">
+            <summary>
+            Represents the result of an operation with success/error state
+            </summary>
+            <typeparam name="T">The type of data returned on success</typeparam>
+        </member>
+        <member name="P:Differ.Core.Models.OperationResult`1.IsSuccess">
+            <summary>
+            Gets a value indicating whether the operation was successful
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.OperationResult`1.Data">
+            <summary>
+            Gets the data returned by the operation (null if failed)
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.OperationResult`1.ErrorMessage">
+            <summary>
+            Gets the error message if the operation failed
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.OperationResult`1.Exception">
+            <summary>
+            Gets the exception that caused the failure (if any)
+            </summary>
+        </member>
+        <member name="M:Differ.Core.Models.OperationResult`1.Success(`0)">
+            <summary>
+            Creates a successful result with data
+            </summary>
+            <param name="data">The data to return</param>
+            <returns>A successful operation result</returns>
+        </member>
+        <member name="M:Differ.Core.Models.OperationResult`1.Failure(System.String,System.Exception)">
+            <summary>
+            Creates a failed result with an error message
+            </summary>
+            <param name="errorMessage">The error message</param>
+            <param name="exception">The exception that caused the failure (optional)</param>
+            <returns>A failed operation result</returns>
+        </member>
+        <member name="T:Differ.Core.Models.OperationResult">
+            <summary>
+            Represents the result of an operation without return data
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.OperationResult.IsSuccess">
+            <summary>
+            Gets a value indicating whether the operation was successful
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.OperationResult.ErrorMessage">
+            <summary>
+            Gets the error message if the operation failed
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.OperationResult.Exception">
+            <summary>
+            Gets the exception that caused the failure (if any)
+            </summary>
+        </member>
+        <member name="M:Differ.Core.Models.OperationResult.Success">
+            <summary>
+            Creates a successful result
+            </summary>
+            <returns>A successful operation result</returns>
+        </member>
+        <member name="M:Differ.Core.Models.OperationResult.Failure(System.String,System.Exception)">
+            <summary>
+            Creates a failed result with an error message
+            </summary>
+            <param name="errorMessage">The error message</param>
+            <param name="exception">The exception that caused the failure (optional)</param>
+            <returns>A failed operation result</returns>
+        </member>
+        <member name="T:Differ.Core.Services.DirectoryComparisonService">
+            <summary>
+            Main service for comparing directories
+            </summary>
+        </member>
+        <member name="M:Differ.Core.Services.DirectoryComparisonService.#ctor(Differ.Core.Interfaces.IDirectoryScanner,Differ.Core.Interfaces.IFileComparer,Microsoft.Extensions.Logging.ILogger{Differ.Core.Services.DirectoryComparisonService})">
+            <summary>
+            Initializes a new instance of the DirectoryComparisonService class
+            </summary>
+            <param name="directoryScanner">The directory scanner service</param>
+            <param name="fileComparer">The file comparer service</param>
+            <param name="logger">The logger instance</param>
+        </member>
+        <member name="M:Differ.Core.Services.DirectoryComparisonService.CompareDirectoriesAsync(System.String,System.String,System.Threading.CancellationToken,System.IProgress{System.String})">
+            <inheritdoc />
+        </member>
+        <member name="T:Differ.Core.Services.DirectoryScanner">
+            <summary>
+            Default implementation of directory scanning service
+            </summary>
+        </member>
+        <member name="M:Differ.Core.Services.DirectoryScanner.#ctor(Microsoft.Extensions.Logging.ILogger{Differ.Core.Services.DirectoryScanner})">
+            <summary>
+            Initializes a new instance of the DirectoryScanner class
+            </summary>
+            <param name="logger">The logger instance</param>
+        </member>
+        <member name="M:Differ.Core.Services.DirectoryScanner.ScanDirectoryAsync(System.String,System.Threading.CancellationToken,System.IProgress{System.String})">
+            <inheritdoc />
+        </member>
+        <member name="M:Differ.Core.Services.DirectoryScanner.ValidateDirectoryPath(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="T:Differ.Core.Services.HashFileComparer">
+            <summary>
+            Hash-based file comparer that compares files by computing their SHA-256 hashes
+            </summary>
+        </member>
+        <member name="M:Differ.Core.Services.HashFileComparer.#ctor(Microsoft.Extensions.Logging.ILogger{Differ.Core.Services.HashFileComparer})">
+            <summary>
+            Initializes a new instance of the HashFileComparer class
+            </summary>
+            <param name="logger">The logger instance</param>
+        </member>
+        <member name="P:Differ.Core.Services.HashFileComparer.Name">
+            <inheritdoc />
+        </member>
+        <member name="P:Differ.Core.Services.HashFileComparer.Description">
+            <inheritdoc />
+        </member>
+        <member name="M:Differ.Core.Services.HashFileComparer.CanCompare(System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Differ.Core.Services.HashFileComparer.CompareFilesAsync(System.String,System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>
