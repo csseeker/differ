@@ -81,18 +81,24 @@ public partial class FileDiffViewModel : ObservableObject, IDisposable
 
         LeftFileName = System.IO.Path.GetFileName(_leftFilePath);
         RightFileName = System.IO.Path.GetFileName(_rightFilePath);
+        OnPropertyChanged(nameof(LeftFilePath));
+        OnPropertyChanged(nameof(RightFilePath));
 
         Title = string.IsNullOrWhiteSpace(displayName)
             ? $"{LeftFileName} ↔ {RightFileName}"
             : displayName!;
 
-    Summary = null;
-    SummaryText = null;
-    DiffLines.Clear();
-    StatusMessage = "Ready";
+        Summary = null;
+        SummaryText = null;
+        DiffLines.Clear();
+        StatusMessage = "Ready";
 
         _isInitialised = true;
     }
+
+    public string LeftFilePath => _leftFilePath;
+
+    public string RightFilePath => _rightFilePath;
 
     /// <summary>
     /// Initiates loading of the diff information.
