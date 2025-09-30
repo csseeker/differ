@@ -103,4 +103,6 @@ The application follows a clean, modular architecture with clear separation of c
 
 ## License
 
-[Add your license information here]
+This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
+
+*Thank you for trying Directory Differ! We look forward to your feedback.*
