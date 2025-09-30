@@ -45,6 +45,10 @@ public partial class MainViewModel : ObservableObject
     public ObservableCollection<UITreeViewItem> LeftDirectoryTree { get; } = new();
     public ObservableCollection<UITreeViewItem> RightDirectoryTree { get; } = new();
 
+    private readonly Dictionary<string, UITreeViewItem> _leftTreeNodes = new();
+    private readonly Dictionary<string, UITreeViewItem> _rightTreeNodes = new();
+    private bool _isSynchronizingSelection;
+
     public ObservableCollection<ComparisonItem> FilteredComparisonItems { get; } = new();
 
     private string? _currentFilter;
@@ -89,14 +93,16 @@ public partial class MainViewModel : ObservableObject
 
         LeftDirectoryTree.Clear();
         RightDirectoryTree.Clear();
+        _leftTreeNodes.Clear();
+        _rightTreeNodes.Clear();
 
         if (value?.Items != null)
         {
             var leftPaths = value.Items.Where(i => i.LeftItem != null).Select(i => i.RelativePath);
-            BuildTree(leftPaths, LeftDirectoryTree);
+            BuildTree(leftPaths, LeftDirectoryTree, _leftTreeNodes);
 
             var rightPaths = value.Items.Where(i => i.RightItem != null).Select(i => i.RelativePath);
-            BuildTree(rightPaths, RightDirectoryTree);
+            BuildTree(rightPaths, RightDirectoryTree, _rightTreeNodes);
         }
     }
 
@@ -107,10 +113,8 @@ public partial class MainViewModel : ObservableObject
         ApplyFilter();
     }
 
-    private void BuildTree(IEnumerable<string> paths, ObservableCollection<UITreeViewItem> rootNodes)
+    private void BuildTree(IEnumerable<string> paths, ObservableCollection<UITreeViewItem> rootNodes, Dictionary<string, UITreeViewItem> allNodes)
     {
-        var allNodes = new Dictionary<string, UITreeViewItem>();
-
         foreach (var path in paths.OrderBy(p => p))
         {
             var parts = path.Split(Path.DirectorySeparatorChar);
@@ -125,10 +129,12 @@ public partial class MainViewModel : ObservableObject
                 if (!allNodes.TryGetValue(currentPath, out var node))
                 {
                     node = new UITreeViewItem { Name = part, FullPath = currentPath };
+                    node.PropertyChanged += OnTreeViewItemPropertyChanged;
                     allNodes[currentPath] = node;
 
                     if (allNodes.TryGetValue(parentPath, out var parentNode))
                     {
+                        node.Parent = parentNode;
                         if (!parentNode.Children.Any(c => c.FullPath == node.FullPath))
                             parentNode.Children.Add(node);
                     }
@@ -139,6 +145,97 @@ public partial class MainViewModel : ObservableObject
                     }
                 }
             }
+        }
+    }
+
+    private void OnTreeViewItemPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (_isSynchronizingSelection) return;
+        if (sender is not UITreeViewItem changedItem) return;
+
+        _isSynchronizingSelection = true;
+        try
+        {
+            switch (e.PropertyName)
+            {
+                case nameof(UITreeViewItem.IsSelected):
+                    if (changedItem.IsSelected)
+                    {
+                        SynchronizeSelection(changedItem);
+                    }
+                    break;
+
+                case nameof(UITreeViewItem.IsExpanded):
+                    SynchronizeExpansion(changedItem);
+                    break;
+            }
+        }
+        finally
+        {
+            _isSynchronizingSelection = false;
+        }
+    }
+
+    private void SynchronizeSelection(UITreeViewItem selectedItem)
+    {
+        var counterpart = GetCounterpart(selectedItem);
+
+        // Deselect all other items in both trees
+        DeselectAll(_leftTreeNodes.Values);
+        DeselectAll(_rightTreeNodes.Values);
+
+        // Reselect the original item
+        selectedItem.IsSelected = true;
+
+        if (counterpart != null)
+        {
+            counterpart.IsSelected = true;
+            ExpandToItem(counterpart);
+        }
+    }
+
+    private void SynchronizeExpansion(UITreeViewItem expandedItem)
+    {
+        var counterpart = GetCounterpart(expandedItem);
+
+        if (counterpart != null)
+        {
+            counterpart.IsExpanded = expandedItem.IsExpanded;
+        }
+    }
+
+    private UITreeViewItem? GetCounterpart(UITreeViewItem sourceItem)
+    {
+        if (_leftTreeNodes.TryGetValue(sourceItem.FullPath, out var leftNode) && ReferenceEquals(leftNode, sourceItem))
+        {
+            return _rightTreeNodes.TryGetValue(sourceItem.FullPath, out var rightMatch) ? rightMatch : null;
+        }
+
+        if (_rightTreeNodes.TryGetValue(sourceItem.FullPath, out var rightNode) && ReferenceEquals(rightNode, sourceItem))
+        {
+            return _leftTreeNodes.TryGetValue(sourceItem.FullPath, out var leftMatch) ? leftMatch : null;
+        }
+
+        return null;
+    }
+
+    private void DeselectAll(IEnumerable<UITreeViewItem> nodes)
+    {
+        foreach (var node in nodes)
+        {
+            node.IsSelected = false;
+        }
+    }
+
+    private void ExpandToItem(UITreeViewItem? item)
+    {
+        if (item == null) return;
+
+        var current = item.Parent;
+        while (current != null)
+        {
+            current.IsExpanded = true;
+            current = current.Parent;
         }
     }
 
