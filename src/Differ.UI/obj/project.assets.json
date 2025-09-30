@@ -1817,11 +1817,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "d:\\repos\\differ\\src\\Differ.UI\\Differ.UI.csproj",
+      "projectUniqueName": "D:\\repos\\differ\\src\\Differ.UI\\Differ.UI.csproj",
       "projectName": "Differ.UI",
-      "projectPath": "d:\\repos\\differ\\src\\Differ.UI\\Differ.UI.csproj",
+      "projectPath": "D:\\repos\\differ\\src\\Differ.UI\\Differ.UI.csproj",
       "packagesPath": "C:\\Users\\shrip\\.nuget\\packages\\",
-      "outputPath": "d:\\repos\\differ\\src\\Differ.UI\\obj\\",
+      "outputPath": "D:\\repos\\differ\\src\\Differ.UI\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

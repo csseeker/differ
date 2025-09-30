@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "W9KdjIfb79U=",
+  "dgSpecHash": "O/66GywX7Rs=",
   "success": true,
-  "projectFilePath": "d:\\repos\\differ\\src\\Differ.UI\\Differ.UI.csproj",
+  "projectFilePath": "D:\\repos\\differ\\src\\Differ.UI\\Differ.UI.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\shrip\\.nuget\\packages\\communitytoolkit.mvvm\\8.2.2\\communitytoolkit.mvvm.8.2.2.nupkg.sha512",
     "C:\\Users\\shrip\\.nuget\\packages\\microsoft.extensions.configuration\\8.0.0\\microsoft.extensions.configuration.8.0.0.nupkg.sha512",

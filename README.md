@@ -2,6 +2,14 @@
 
 A clean, intuitive Windows application for comparing directories and files, built with WPF and .NET 8.
 
+## Download
+
+- Grab the latest `Differ-v*-win-x64.zip` from the [releases page](https://github.com/csseeker/differ/releases).
+- Unzip anywhere you have write access.
+- Double-click `DifferApp.exe` (Windows may prompt with SmartScreen; choose **Run anyway**).
+- Optional: pin the executable to Start or Taskbar for quick access.
+- If a `.msix` package is available, install it for Start menu integration (see `docs/MSIX_PACKAGING.md`).
+
 ## Features
 
 - **Directory Comparison**: Compare two directories and identify differences
@@ -18,10 +26,10 @@ The application follows a clean, modular architecture with clear separation of c
 - **Differ.App**: Application entry point and dependency injection setup
 - **Differ.Tests**: Comprehensive unit and integration tests
 
-## Requirements
+## System Requirements
 
-- .NET 8 Runtime
-- Windows 10 or later
+- **Packaged release:** Windows 10 or later (no separate .NET install required).
+- **Building from source:** .NET 8 SDK, Windows 10 or later.
 
 ## Building from Source
 
@@ -83,6 +91,14 @@ The application follows a clean, modular architecture with clear separation of c
 2. Ensure all tests pass and maintain >90% code coverage
 3. Use the result pattern for error handling instead of exceptions
 4. All I/O operations must be async with `CancellationToken` support
+
+## Release Management
+
+- Follow the playbook in `docs/RELEASE.md` for tagging and shipping builds.
+- Use `docs/QA.md` as the pre-release validation checklist.
+- Start each release draft from `docs/RELEASE_NOTES_TEMPLATE.md` to keep notes consistent.
+- Package builds manually using the commands in the release playbook, then upload artifacts to GitHub Releases.
+- Generate MSIX installers with `scripts/create-msix.ps1` when you need an installer experience.
 
 ## License
 
