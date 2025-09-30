@@ -14,6 +14,7 @@
         <converters:FileSizeConverter x:Key="FileSizeConverter" />
         <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
         <converters:ItemTypeConverter x:Key="ItemTypeConverter" />
+        <converters:SummaryToFilterButtonsConverter x:Key="SummaryToFilterButtonsConverter" />
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         
         <Style TargetType="Button">
@@ -80,51 +81,29 @@
 
         <!-- Summary -->
         <GroupBox Grid.Row="1" Header="Comparison Summary" Margin="10" Visibility="{Binding ComparisonSummary, Converter={StaticResource NullToVisibilityConverter}}">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
-                <StackPanel Grid.Column="0" Margin="10,5">
-                    <Label Content="Total Items" FontWeight="Bold" HorizontalAlignment="Center"/>
-                    <Label Content="{Binding ComparisonSummary.TotalItems}" HorizontalAlignment="Center"/>
-                </StackPanel>
-
-                <StackPanel Grid.Column="1" Margin="10,5">
-                    <Label Content="Identical" FontWeight="Bold" HorizontalAlignment="Center" Foreground="Green"/>
-                    <Label Content="{Binding ComparisonSummary.IdenticalItems}" HorizontalAlignment="Center"/>
-                </StackPanel>
-
-                <StackPanel Grid.Column="2" Margin="10,5">
-                    <Label Content="Different" FontWeight="Bold" HorizontalAlignment="Center" Foreground="Red"/>
-                    <Label Content="{Binding ComparisonSummary.DifferentItems}" HorizontalAlignment="Center"/>
-                </StackPanel>
-
-                <StackPanel Grid.Column="3" Margin="10,5">
-                    <Label Content="Left Only" FontWeight="Bold" HorizontalAlignment="Center" Foreground="Blue"/>
-                    <Label Content="{Binding ComparisonSummary.LeftOnlyItems}" HorizontalAlignment="Center"/>
-                </StackPanel>
-
-                <StackPanel Grid.Column="4" Margin="10,5">
-                    <Label Content="Right Only" FontWeight="Bold" HorizontalAlignment="Center" Foreground="Orange"/>
-                    <Label Content="{Binding ComparisonSummary.RightOnlyItems}" HorizontalAlignment="Center"/>
-                </StackPanel>
-
-                <StackPanel Grid.Column="5" Margin="10,5">
-                    <Label Content="Errors" FontWeight="Bold" HorizontalAlignment="Center" Foreground="Purple"/>
-                    <Label Content="{Binding ComparisonSummary.ErrorItems}" HorizontalAlignment="Center"/>
-                </StackPanel>
-            </Grid>
+            <ItemsControl ItemsSource="{Binding ComparisonSummary, Converter={StaticResource SummaryToFilterButtonsConverter}}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button Command="{Binding DataContext.FilterItemsCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                CommandParameter="{Binding Category}">
+                            <StackPanel>
+                                <TextBlock Text="{Binding Label}" FontWeight="Bold" HorizontalAlignment="Center" Foreground="{Binding Color}"/>
+                                <TextBlock Text="{Binding Count}" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
         </GroupBox>
 
         <!-- Results -->
         <GroupBox Grid.Row="2" Header="Comparison Results" Margin="10">
-            <DataGrid ItemsSource="{Binding ComparisonItems}"
+            <DataGrid ItemsSource="{Binding FilteredComparisonItems}"
                       AutoGenerateColumns="False"
                       IsReadOnly="True"
                       GridLinesVisibility="Horizontal"

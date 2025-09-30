@@ -143,3 +143,33 @@ public class ItemTypeConverter : IMultiValueConverter
         throw new NotImplementedException();
     }
 }
+
+public record FilterButtonViewModel(string Label, int Count, Brush Color, string? Category);
+
+public class SummaryToFilterButtonsConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is not ComparisonSummary summary)
+        {
+            return Enumerable.Empty<FilterButtonViewModel>();
+        }
+
+        var buttons = new List<FilterButtonViewModel>
+        {
+            new("All", summary.TotalItems, Brushes.Black, null),
+            new("Identical", summary.IdenticalItems, Brushes.Green, ComparisonStatus.Identical.ToString()),
+            new("Different", summary.DifferentItems, Brushes.Red, ComparisonStatus.Different.ToString()),
+            new("Left Only", summary.LeftOnlyItems, Brushes.Blue, ComparisonStatus.LeftOnly.ToString()),
+            new("Right Only", summary.RightOnlyItems, Brushes.Orange, ComparisonStatus.RightOnly.ToString()),
+            new("Errors", summary.ErrorItems, Brushes.Purple, ComparisonStatus.Error.ToString())
+        };
+
+        return buttons.Where(b => b.Count > 0 || b.Category == null);
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
+    }
+}

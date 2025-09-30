@@ -39,7 +39,9 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private ComparisonSummary? _comparisonSummary;
 
-    public ObservableCollection<ComparisonItem> ComparisonItems { get; } = new();
+    public ObservableCollection<ComparisonItem> FilteredComparisonItems { get; } = new();
+
+    private string? _currentFilter;
 
     public MainViewModel(
         IDirectoryComparisonService comparisonService,
@@ -67,18 +69,48 @@ public partial class MainViewModel : ObservableObject
 
     partial void OnComparisonResultChanged(DirectoryComparisonResult? value)
     {
-        ComparisonItems.Clear();
-        if (value?.Items != null)
+        _currentFilter = null; // Reset filter
+        ApplyFilter();
+
+        if (value?.Summary != null)
         {
-            foreach (var item in value.Items)
-            {
-                ComparisonItems.Add(item);
-            }
             ComparisonSummary = value.Summary;
         }
         else
         {
             ComparisonSummary = null;
+        }
+    }
+
+    [RelayCommand]
+    private void FilterItems(string? category)
+    {
+        _currentFilter = category;
+        ApplyFilter();
+    }
+
+    private void ApplyFilter()
+    {
+        FilteredComparisonItems.Clear();
+
+        if (ComparisonResult?.Items == null)
+        {
+            return;
+        }
+
+        var itemsToShow = ComparisonResult.Items.AsEnumerable();
+
+        if (!string.IsNullOrEmpty(_currentFilter))
+        {
+            if (Enum.TryParse<ComparisonStatus>(_currentFilter, out var status))
+            {
+                itemsToShow = itemsToShow.Where(i => i.Status == status);
+            }
+        }
+
+        foreach (var item in itemsToShow)
+        {
+            FilteredComparisonItems.Add(item);
         }
     }
 
