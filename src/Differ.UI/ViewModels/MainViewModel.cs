@@ -2,9 +2,11 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Differ.Core.Interfaces;
 using Differ.Core.Models;
+using Differ.UI.Models;
 using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Windows;
 
 namespace Differ.UI.ViewModels;
@@ -39,6 +41,9 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     private ComparisonSummary? _comparisonSummary;
+
+    public ObservableCollection<UITreeViewItem> LeftDirectoryTree { get; } = new();
+    public ObservableCollection<UITreeViewItem> RightDirectoryTree { get; } = new();
 
     public ObservableCollection<ComparisonItem> FilteredComparisonItems { get; } = new();
 
@@ -81,6 +86,18 @@ public partial class MainViewModel : ObservableObject
         {
             ComparisonSummary = null;
         }
+
+        LeftDirectoryTree.Clear();
+        RightDirectoryTree.Clear();
+
+        if (value?.Items != null)
+        {
+            var leftPaths = value.Items.Where(i => i.LeftItem != null).Select(i => i.RelativePath);
+            BuildTree(leftPaths, LeftDirectoryTree);
+
+            var rightPaths = value.Items.Where(i => i.RightItem != null).Select(i => i.RelativePath);
+            BuildTree(rightPaths, RightDirectoryTree);
+        }
     }
 
     [RelayCommand]
@@ -88,6 +105,41 @@ public partial class MainViewModel : ObservableObject
     {
         _currentFilter = category;
         ApplyFilter();
+    }
+
+    private void BuildTree(IEnumerable<string> paths, ObservableCollection<UITreeViewItem> rootNodes)
+    {
+        var allNodes = new Dictionary<string, UITreeViewItem>();
+
+        foreach (var path in paths.OrderBy(p => p))
+        {
+            var parts = path.Split(Path.DirectorySeparatorChar);
+            string currentPath = string.Empty;
+
+            for (int i = 0; i < parts.Length; i++)
+            {
+                var part = parts[i];
+                var parentPath = currentPath;
+                currentPath = i == 0 ? part : Path.Combine(currentPath, part);
+
+                if (!allNodes.TryGetValue(currentPath, out var node))
+                {
+                    node = new UITreeViewItem { Name = part, FullPath = currentPath };
+                    allNodes[currentPath] = node;
+
+                    if (allNodes.TryGetValue(parentPath, out var parentNode))
+                    {
+                        if (!parentNode.Children.Any(c => c.FullPath == node.FullPath))
+                            parentNode.Children.Add(node);
+                    }
+                    else
+                    {
+                        if (!rootNodes.Any(r => r.FullPath == node.FullPath))
+                           rootNodes.Add(node);
+                    }
+                }
+            }
+        }
     }
 
     private void ApplyFilter()
