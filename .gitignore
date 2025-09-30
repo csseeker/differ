@@ -14,10 +14,11 @@
 
 
 # Project-wide build artifacts
-bin/
-obj/
-*/bin/
-*/obj/
+bin/*
+obj/*
+*/bin/*
+*/obj/*
+artifacts/*
 
 # Packaging output
 AppPackages/
