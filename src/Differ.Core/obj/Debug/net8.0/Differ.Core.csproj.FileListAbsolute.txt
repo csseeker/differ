@@ -7,6 +7,7 @@ D:\repos\differ\src\Differ.Core\obj\Debug\net8.0\Differ.Core.GeneratedMSBuildEdi
 D:\repos\differ\src\Differ.Core\obj\Debug\net8.0\Differ.Core.AssemblyInfoInputs.cache
 D:\repos\differ\src\Differ.Core\obj\Debug\net8.0\Differ.Core.AssemblyInfo.cs
 D:\repos\differ\src\Differ.Core\obj\Debug\net8.0\Differ.Core.csproj.CoreCompileInputs.cache
+D:\repos\differ\src\Differ.Core\obj\Debug\net8.0\Differ.Core.sourcelink.json
 D:\repos\differ\src\Differ.Core\obj\Debug\net8.0\Differ.Core.dll
 D:\repos\differ\src\Differ.Core\obj\Debug\net8.0\refint\Differ.Core.dll
 D:\repos\differ\src\Differ.Core\obj\Debug\net8.0\Differ.Core.xml

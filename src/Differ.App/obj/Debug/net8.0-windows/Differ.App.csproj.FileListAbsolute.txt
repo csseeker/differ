@@ -47,3 +47,4 @@ d:\repos\differ\src\Differ.App\obj\Debug\net8.0-windows\refint\Differ.App.dll
 d:\repos\differ\src\Differ.App\obj\Debug\net8.0-windows\Differ.App.pdb
 D:\repos\differ\src\Differ.App\obj\Debug\net8.0-windows\Differ.App.genruntimeconfig.cache
 D:\repos\differ\src\Differ.App\obj\Debug\net8.0-windows\ref\Differ.App.dll
+d:\repos\differ\src\Differ.App\obj\Debug\net8.0-windows\Differ.App.sourcelink.json

@@ -29,9 +29,10 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private bool _isComparing = false;
 
-    [ObservableProperty]
-    private bool _canCompare = false;
-
+    private bool CanCompare => !string.IsNullOrWhiteSpace(LeftDirectoryPath) &&
+                               !string.IsNullOrWhiteSpace(RightDirectoryPath) &&
+                               !IsComparing;
+    
     [ObservableProperty]
     private DirectoryComparisonResult? _comparisonResult;
 
@@ -50,12 +51,18 @@ public partial class MainViewModel : ObservableObject
 
     partial void OnLeftDirectoryPathChanged(string value)
     {
-        UpdateCanCompare();
+        CompareDirectoriesCommand.NotifyCanExecuteChanged();
     }
 
     partial void OnRightDirectoryPathChanged(string value)
     {
-        UpdateCanCompare();
+        CompareDirectoriesCommand.NotifyCanExecuteChanged();
+    }
+
+    partial void OnIsComparingChanged(bool value)
+    {
+        CompareDirectoriesCommand.NotifyCanExecuteChanged();
+        CancelComparisonCommand.NotifyCanExecuteChanged();
     }
 
     partial void OnComparisonResultChanged(DirectoryComparisonResult? value)
@@ -164,13 +171,6 @@ public partial class MainViewModel : ObservableObject
     {
         _cancellationTokenSource?.Cancel();
         StatusMessage = "Cancelling comparison...";
-    }
-
-    private void UpdateCanCompare()
-    {
-        CanCompare = !string.IsNullOrWhiteSpace(LeftDirectoryPath) && 
-                     !string.IsNullOrWhiteSpace(RightDirectoryPath) && 
-                     !IsComparing;
     }
 
     private static string? BrowseForDirectory(string description)

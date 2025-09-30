@@ -20,3 +20,4 @@ d:\repos\differ\src\Differ.UI\obj\Debug\net8.0-windows\Differ.UI.dll
 d:\repos\differ\src\Differ.UI\obj\Debug\net8.0-windows\refint\Differ.UI.dll
 d:\repos\differ\src\Differ.UI\obj\Debug\net8.0-windows\Differ.UI.pdb
 d:\repos\differ\src\Differ.UI\obj\Debug\net8.0-windows\ref\Differ.UI.dll
+d:\repos\differ\src\Differ.UI\obj\Debug\net8.0-windows\Differ.UI.sourcelink.json
