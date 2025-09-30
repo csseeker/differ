@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Differ.UI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+be3894621d7779cb43e36318ffcf39eaceaf267a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0f750b0a44df09dab1eb7e635aea136fcba2b217")]
 [assembly: System.Reflection.AssemblyProductAttribute("Differ.UI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Differ.UI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
