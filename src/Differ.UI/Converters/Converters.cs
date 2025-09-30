@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
+using System.Text;
 
 namespace Differ.UI.Converters;
 
@@ -125,6 +126,61 @@ public class NullToVisibilityConverter : IValueConverter
 }
 
 /// <summary>
+/// Converts raw text into a representation that highlights whitespace and control characters.
+/// </summary>
+public class WhitespaceDisplayConverter : IMultiValueConverter
+{
+    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (values.Length < 2)
+        {
+            return string.Empty;
+        }
+
+        var text = values[0] as string ?? string.Empty;
+        var showWhitespace = values[1] is bool flag && flag;
+
+        if (!showWhitespace)
+        {
+            return text;
+        }
+
+        if (text.Length == 0)
+        {
+            return "⏎";
+        }
+
+        var builder = new StringBuilder(text.Length + 4);
+        foreach (var ch in text)
+        {
+            builder.Append(ConvertCharacter(ch));
+        }
+
+        builder.Append('⏎');
+        return builder.ToString();
+    }
+
+    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
+    }
+
+    private static string ConvertCharacter(char ch)
+    {
+        return ch switch
+        {
+            ' ' => "·",
+            '\t' => "→",
+            '\r' => "␍",
+            '\n' => "␊",
+            (char)127 => "␡",
+            < ' ' => new string((char)('\u2400' + ch), 1),
+            _ => ch.ToString()
+        };
+    }
+}
+
+/// <summary>
 /// Determines item type (File/Directory) from FileSystemItem
 /// </summary>
 public class ItemTypeConverter : IMultiValueConverter
@@ -166,6 +222,67 @@ public class SummaryToFilterButtonsConverter : IValueConverter
         };
 
         return buttons.Where(b => b.Count > 0 || b.Category == null);
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+/// <summary>
+/// Converts <see cref="LineChangeKind"/> values to background brushes for the diff view.
+/// </summary>
+public class LineChangeKindToBrushConverter : IValueConverter
+{
+    private static readonly Brush AddedBrush = CreateBrush(Color.FromRgb(220, 252, 231));
+    private static readonly Brush RemovedBrush = CreateBrush(Color.FromRgb(254, 226, 226));
+    private static readonly Brush ModifiedBrush = CreateBrush(Color.FromRgb(254, 243, 199));
+
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is LineChangeKind changeKind)
+        {
+            return changeKind switch
+            {
+                LineChangeKind.Added => AddedBrush,
+                LineChangeKind.Removed => RemovedBrush,
+                LineChangeKind.Modified => ModifiedBrush,
+                _ => Brushes.Transparent
+            };
+        }
+
+        return Brushes.Transparent;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
+    }
+
+    private static SolidColorBrush CreateBrush(Color color)
+    {
+        var brush = new SolidColorBrush(color);
+        brush.Freeze();
+        return brush;
+    }
+}
+
+/// <summary>
+/// Determines whether a comparison item can be opened in the file diff view.
+/// </summary>
+public class ComparisonItemCanDiffConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is ComparisonItem item)
+        {
+            var leftIsFile = item.LeftItem?.IsDirectory == false;
+            var rightIsFile = item.RightItem?.IsDirectory == false;
+            return item.Status == ComparisonStatus.Different && leftIsFile && rightIsFile;
+        }
+
+        return false;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

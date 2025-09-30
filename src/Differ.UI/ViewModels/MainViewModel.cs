@@ -3,10 +3,13 @@ using CommunityToolkit.Mvvm.Input;
 using Differ.Core.Interfaces;
 using Differ.Core.Models;
 using Differ.UI.Models;
+using Differ.UI.Services;
 using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace Differ.UI.ViewModels;
@@ -18,6 +21,7 @@ public partial class MainViewModel : ObservableObject
 {
     private readonly IDirectoryComparisonService _comparisonService;
     private readonly ILogger<MainViewModel> _logger;
+    private readonly IFileDiffNavigationService _fileDiffNavigationService;
     private CancellationTokenSource? _cancellationTokenSource;
 
     [ObservableProperty]
@@ -55,10 +59,12 @@ public partial class MainViewModel : ObservableObject
 
     public MainViewModel(
         IDirectoryComparisonService comparisonService,
-        ILogger<MainViewModel> logger)
+        ILogger<MainViewModel> logger,
+        IFileDiffNavigationService fileDiffNavigationService)
     {
         _comparisonService = comparisonService ?? throw new ArgumentNullException(nameof(comparisonService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _fileDiffNavigationService = fileDiffNavigationService ?? throw new ArgumentNullException(nameof(fileDiffNavigationService));
     }
 
     partial void OnLeftDirectoryPathChanged(string value)
@@ -281,6 +287,56 @@ public partial class MainViewModel : ObservableObject
         if (!string.IsNullOrEmpty(selectedPath))
         {
             RightDirectoryPath = selectedPath;
+        }
+    }
+
+    [RelayCommand]
+    private async Task OpenDiffAsync(ComparisonItem? comparisonItem)
+    {
+        if (comparisonItem is null)
+        {
+            return;
+        }
+
+        if (comparisonItem.Status != ComparisonStatus.Different)
+        {
+            return;
+        }
+
+        if (comparisonItem.LeftItem?.IsDirectory == true || comparisonItem.RightItem?.IsDirectory == true)
+        {
+            StatusMessage = "Diff view is available for files only.";
+            return;
+        }
+
+        var leftPath = comparisonItem.LeftItem?.FullPath;
+        var rightPath = comparisonItem.RightItem?.FullPath;
+
+        if (string.IsNullOrWhiteSpace(leftPath) || string.IsNullOrWhiteSpace(rightPath))
+        {
+            StatusMessage = "Unable to locate files for diff view.";
+            return;
+        }
+
+        try
+        {
+            StatusMessage = $"Opening diff for {comparisonItem.RelativePath}...";
+            await _fileDiffNavigationService.ShowDiffAsync(leftPath, rightPath, comparisonItem.RelativePath);
+            StatusMessage = $"Diff opened for {comparisonItem.RelativePath}.";
+        }
+        catch (OperationCanceledException)
+        {
+            StatusMessage = "Diff opening cancelled.";
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to open diff window for {RelativePath}", comparisonItem.RelativePath);
+            StatusMessage = "Failed to open diff window.";
+            MessageBox.Show(
+                $"Unable to open diff view: {ex.Message}",
+                "Diff Error",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
         }
     }
 

@@ -16,6 +16,7 @@
         <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
         <converters:ItemTypeConverter x:Key="ItemTypeConverter" />
         <converters:SummaryToFilterButtonsConverter x:Key="SummaryToFilterButtonsConverter" />
+    <converters:ComparisonItemCanDiffConverter x:Key="ComparisonItemCanDiffConverter" />
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
         <HierarchicalDataTemplate DataType="{x:Type models:UITreeViewItem}" ItemsSource="{Binding Children}">
@@ -148,6 +149,21 @@
                           GridLinesVisibility="Horizontal"
                           AlternatingRowBackground="LightGray"
                           SelectionMode="Single">
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Setter Property="Tag" Value="{Binding DataContext, RelativeSource={RelativeSource AncestorType=Window}}" />
+                            <Setter Property="ContextMenu">
+                                <Setter.Value>
+                                    <ContextMenu>
+                                        <MenuItem Header="Compare"
+                                                  Command="{Binding PlacementTarget.Tag.OpenDiffCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                  CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                  IsEnabled="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}, Converter={StaticResource ComparisonItemCanDiffConverter}}" />
+                                    </ContextMenu>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGrid.RowStyle>
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Status" 
                                             Binding="{Binding Status, Converter={StaticResource StatusToTextConverter}}"

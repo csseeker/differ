@@ -72,6 +72,28 @@
             <param name="rightFilePath">Path to the second file</param>
             <returns>True if this comparer can handle these files</returns>
         </member>
+        <member name="T:Differ.Core.Interfaces.ITextDiffService">
+            <summary>
+            Defines the contract for producing human-readable differences between two text files.
+            </summary>
+        </member>
+        <member name="M:Differ.Core.Interfaces.ITextDiffService.CanDiff(System.String,System.String)">
+            <summary>
+            Determines whether the service can compute a diff for the supplied paths.
+            </summary>
+            <param name="leftFilePath">The path to the left (original) file.</param>
+            <param name="rightFilePath">The path to the right (modified) file.</param>
+            <returns><c>true</c> if the service can diff the files; otherwise <c>false</c>.</returns>
+        </member>
+        <member name="M:Differ.Core.Interfaces.ITextDiffService.ComputeDiffAsync(Differ.Core.Models.TextDiffRequest,System.Threading.CancellationToken,System.IProgress{System.Double})">
+            <summary>
+            Produces a textual diff for the supplied request.
+            </summary>
+            <param name="request">The diff request.</param>
+            <param name="cancellationToken">Token used to cancel the diff operation.</param>
+            <param name="progress">Optional progress reporter that will be invoked with values in the range [0, 1].</param>
+            <returns>An <see cref="T:Differ.Core.Models.OperationResult`1"/> containing the diff outcome.</returns>
+        </member>
         <member name="T:Differ.Core.Models.FileSystemItem">
             <summary>
             Represents information about a file system item (file or directory)
@@ -312,6 +334,154 @@
             <param name="exception">The exception that caused the failure (optional)</param>
             <returns>A failed operation result</returns>
         </member>
+        <member name="T:Differ.Core.Models.TextDiffRequest">
+            <summary>
+            Represents a request to compute the differences between two text files.
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.TextDiffRequest.LeftFilePath">
+            <summary>
+            Gets or sets the full path to the file that is considered the left (or original) side.
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.TextDiffRequest.RightFilePath">
+            <summary>
+            Gets or sets the full path to the file that is considered the right (or modified) side.
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.TextDiffRequest.IgnoreWhitespace">
+            <summary>
+            Gets or sets a value indicating whether whitespace differences should be ignored.
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.TextDiffRequest.IgnoreCase">
+            <summary>
+            Gets or sets a value indicating whether character casing differences should be ignored.
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.TextDiffRequest.ContextLineCount">
+            <summary>
+            Gets or sets the number of unchanged context lines to include around differences.
+            </summary>
+            <remarks>
+            The current implementation includes all lines, but this value enables future optimisation.
+            </remarks>
+        </member>
+        <member name="T:Differ.Core.Models.DiffLine">
+            <summary>
+            Represents a single line within a diff result.
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.DiffLine.ChangeKind">
+            <summary>
+            Gets the type of change associated with this line.
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.DiffLine.LeftLineNumber">
+            <summary>
+            Gets the (1-based) line number in the left file, if applicable.
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.DiffLine.LeftText">
+            <summary>
+            Gets the text for the left file line, if available.
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.DiffLine.RightLineNumber">
+            <summary>
+            Gets the (1-based) line number in the right file, if applicable.
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.DiffLine.RightText">
+            <summary>
+            Gets the text for the right file line, if available.
+            </summary>
+        </member>
+        <member name="T:Differ.Core.Models.DiffSummary">
+            <summary>
+            Provides summary statistics for a text diff operation.
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.DiffSummary.TotalLines">
+            <summary>
+            Gets the total number of lines in the diff output.
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.DiffSummary.UnchangedLines">
+            <summary>
+            Gets the number of unchanged (context) lines.
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.DiffSummary.AddedLines">
+            <summary>
+            Gets the number of added lines.
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.DiffSummary.RemovedLines">
+            <summary>
+            Gets the number of removed lines.
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.DiffSummary.ModifiedLines">
+            <summary>
+            Gets the number of modified lines.
+            </summary>
+        </member>
+        <member name="T:Differ.Core.Models.TextDiffResult">
+            <summary>
+            Represents the result of a text diff operation.
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.TextDiffResult.LeftFilePath">
+            <summary>
+            Gets the path of the left file involved in the diff.
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.TextDiffResult.RightFilePath">
+            <summary>
+            Gets the path of the right file involved in the diff.
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.TextDiffResult.Lines">
+            <summary>
+            Gets the collection of diff lines representing the comparison outcome.
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.TextDiffResult.Summary">
+            <summary>
+            Gets the summary statistics for this diff.
+            </summary>
+        </member>
+        <member name="P:Differ.Core.Models.TextDiffResult.HasDifferences">
+            <summary>
+            Gets a value indicating whether the diff detected any differences.
+            </summary>
+        </member>
+        <member name="T:Differ.Core.Models.LineChangeKind">
+            <summary>
+            Describes the type of change detected for a diff line.
+            </summary>
+        </member>
+        <member name="F:Differ.Core.Models.LineChangeKind.Unchanged">
+            <summary>
+            The line is unchanged between the files.
+            </summary>
+        </member>
+        <member name="F:Differ.Core.Models.LineChangeKind.Added">
+            <summary>
+            The line exists only in the right file (added).
+            </summary>
+        </member>
+        <member name="F:Differ.Core.Models.LineChangeKind.Removed">
+            <summary>
+            The line exists only in the left file (removed).
+            </summary>
+        </member>
+        <member name="F:Differ.Core.Models.LineChangeKind.Modified">
+            <summary>
+            The line exists in both files but has been modified.
+            </summary>
+        </member>
         <member name="T:Differ.Core.Services.DirectoryComparisonService">
             <summary>
             Main service for comparing directories
@@ -366,6 +536,23 @@
             <inheritdoc />
         </member>
         <member name="M:Differ.Core.Services.HashFileComparer.CompareFilesAsync(System.String,System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:Differ.Core.Services.TextDiffService">
+            <summary>
+            Provides a line-oriented text diff implementation with optional preprocessing rules.
+            </summary>
+        </member>
+        <member name="M:Differ.Core.Services.TextDiffService.#ctor(Microsoft.Extensions.Logging.ILogger{Differ.Core.Services.TextDiffService})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Differ.Core.Services.TextDiffService"/> class.
+            </summary>
+            <param name="logger">The logger instance.</param>
+        </member>
+        <member name="M:Differ.Core.Services.TextDiffService.CanDiff(System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Differ.Core.Services.TextDiffService.ComputeDiffAsync(Differ.Core.Models.TextDiffRequest,System.Threading.CancellationToken,System.IProgress{System.Double})">
             <inheritdoc />
         </member>
     </members>
