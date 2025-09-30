@@ -4,6 +4,7 @@ using Differ.Core.Interfaces;
 using Differ.Core.Models;
 using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Windows;
 
 namespace Differ.UI.ViewModels;
@@ -140,6 +141,8 @@ public partial class MainViewModel : ObservableObject
         if (IsComparing)
             return;
 
+        var stopwatch = new Stopwatch();
+
         try
         {
             IsComparing = true;
@@ -150,17 +153,21 @@ public partial class MainViewModel : ObservableObject
             _logger.LogInformation("Starting directory comparison");
             StatusMessage = "Starting comparison...";
 
+            stopwatch.Start();
+
             var result = await _comparisonService.CompareDirectoriesAsync(
                 LeftDirectoryPath,
                 RightDirectoryPath,
                 _cancellationTokenSource.Token,
                 progress);
 
+            stopwatch.Stop();
+
             if (result.IsSuccess)
             {
                 ComparisonResult = result.Data;
-                StatusMessage = $"Comparison completed. Found {result.Data!.Items.Count} items.";
-                _logger.LogInformation("Directory comparison completed successfully");
+                StatusMessage = $"Comparison completed in {stopwatch.Elapsed.TotalSeconds:F2} seconds. Found {result.Data!.Items.Count} items.";
+                _logger.LogInformation("Directory comparison completed successfully in {ElapsedMilliseconds}ms", stopwatch.ElapsedMilliseconds);
             }
             else
             {
