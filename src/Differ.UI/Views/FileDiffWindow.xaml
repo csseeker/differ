@@ -41,7 +41,7 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Orientation="Vertical" Grid.Column="0">
-                    <TextBlock Text="Diffing" FontWeight="Bold" />
+                    <TextBlock Text="Diffing File" FontWeight="Bold" />
                     <Grid Margin="0,4,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="{Binding ElementName=LeftContentColumn, Path=ActualWidth, Mode=OneWay}" />

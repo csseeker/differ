@@ -353,11 +353,25 @@ public class TextDiffService : ITextDiffService
         int deleteOperationIndex,
         out int insertOperationIndex)
     {
-        var nextIndex = deleteOperationIndex + 1;
-        if (nextIndex < operations.Count && !consumed[nextIndex] && operations[nextIndex].Kind == DiffOperationKind.Insert)
+        for (int candidateIndex = deleteOperationIndex + 1; candidateIndex < operations.Count; candidateIndex++)
         {
-            insertOperationIndex = nextIndex;
-            return true;
+            if (consumed[candidateIndex])
+            {
+                continue;
+            }
+
+            var candidate = operations[candidateIndex];
+
+            if (candidate.Kind == DiffOperationKind.Equal)
+            {
+                break;
+            }
+
+            if (candidate.Kind == DiffOperationKind.Insert)
+            {
+                insertOperationIndex = candidateIndex;
+                return true;
+            }
         }
 
         insertOperationIndex = -1;

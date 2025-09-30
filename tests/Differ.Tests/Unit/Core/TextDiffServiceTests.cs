@@ -67,6 +67,52 @@ public sealed class TextDiffServiceTests : IDisposable
     }
 
     [Fact]
+    public async Task ComputeDiffAsync_WhenOnlyLetterCasingChanges_TreatsAsModifiedLine()
+    {
+        var leftPath = WriteFile("left_case.txt", "Console.WriteLine(\"Hello World\");");
+        var rightPath = WriteFile("right_case.txt", "Console.WriteLine(\"hello world\");");
+
+        var request = new TextDiffRequest
+        {
+            LeftFilePath = leftPath,
+            RightFilePath = rightPath
+        };
+
+        var result = await _sut.ComputeDiffAsync(request);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Data.Should().NotBeNull();
+        result.Data!.Summary.ModifiedLines.Should().Be(1);
+        result.Data.Summary.RemovedLines.Should().Be(0);
+        result.Data.Summary.AddedLines.Should().Be(0);
+
+        var modifiedLine = result.Data.Lines.Should().ContainSingle(l => l.ChangeKind == LineChangeKind.Modified).Subject;
+        modifiedLine.LeftText.Should().Be("Console.WriteLine(\"Hello World\");");
+        modifiedLine.RightText.Should().Be("Console.WriteLine(\"hello world\");");
+    }
+
+    [Fact]
+    public async Task ComputeDiffAsync_WhenMultipleConsecutiveCaseChanges_DoNotProduceRemovals()
+    {
+        var leftPath = WriteFile("left_case_block.txt", "FirstLine", "SecondLine");
+        var rightPath = WriteFile("right_case_block.txt", "firstline", "secondline");
+
+        var request = new TextDiffRequest
+        {
+            LeftFilePath = leftPath,
+            RightFilePath = rightPath
+        };
+
+        var result = await _sut.ComputeDiffAsync(request);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Data.Should().NotBeNull();
+        result.Data!.Summary.ModifiedLines.Should().Be(2);
+        result.Data.Summary.RemovedLines.Should().Be(0);
+        result.Data.Summary.AddedLines.Should().Be(0);
+    }
+
+    [Fact]
     public async Task ComputeDiffAsync_IgnoreWhitespace_TreatsSpacingOnlyChangesAsUnchanged()
     {
         var leftPath = WriteFile("left3.txt", "alpha", "beta", "gamma");
