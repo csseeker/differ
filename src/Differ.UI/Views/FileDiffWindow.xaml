@@ -5,7 +5,6 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:converters="clr-namespace:Differ.UI.Converters"
         xmlns:models="clr-namespace:Differ.UI.Models"
-    xmlns:syswin="clr-namespace:System.Windows;assembly=PresentationFramework"
         mc:Ignorable="d"
         Title="{Binding Title}"
         Height="650"
@@ -111,8 +110,7 @@
             Margin="20,0,0,0"
             Content="Refresh"
             Command="{Binding ReloadCommand}"
-            VerticalAlignment="Center"
-            Height="{x:Static syswin:SystemParameters.CaptionHeight}" />
+            VerticalAlignment="Center" />
             </Grid>
         </Border>
 
