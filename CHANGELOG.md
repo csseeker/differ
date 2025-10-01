@@ -7,6 +7,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [Unreleased]
 
 ### Added
+- **Structured Logging Infrastructure (Sprint 4):**
+  - New `Differ.Common` project for cross-cutting concerns
+  - Serilog integration with file, console, and debug output sinks
+  - Configuration-based logging via `appsettings.json`
+  - Environment-specific logging configs (Development/Production)
+  - `IDifferLogLevelManager` for runtime log level control
+  - Strongly-typed `DifferLoggingOptions` with validation
+  - File logging to `%LOCALAPPDATA%\Differ\Logs` with rolling policies
+  - Automatic log directory creation
+  - Startup error logging with fallback mechanisms
 - **Enhanced UX Features (Sprint 3):**
   - Dialog Service (`IDialogService`) for consistent, testable dialog management
   - About Dialog showing version, copyright, and GitHub link
@@ -21,6 +31,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   - Icon resources properly configured in project files
 
 ### Changed
+- **Logging Infrastructure Refinement (Sprint 4):**
+  - Upgraded Microsoft.Extensions.* packages from 8.0.0 to 9.0.0
+  - Simplified logging configuration (removed mixed config/code approaches)
+  - Extracted `CreateLoggingLevelSwitch()` and `LogStartupError()` methods
+  - Improved startup error handling with user-specific log paths
+  - Streamlined `appsettings.Development.json` (removed redundant overrides)
 - **Professional Branding Upgrade (Sprint 1 - Core Branding):**
   - Updated main window title to "Differ - Directory Comparison Tool"
   - Improved FileDiff window titles to show just filename instead of full path
@@ -35,6 +51,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   - Thread-safe dialog display on UI thread
 
 ### Improved
+- **Logging Architecture (Sprint 4):**
+  - 27% reduction in logging setup code (removed complexity)
+  - Pure code-based configuration (eliminated mixed approaches)
+  - Better testability with extracted methods instead of inline lambdas
+  - Cleaner error handling with dedicated logging methods
+  - DRY principle applied (removed configuration redundancy)
+  - Simplified `LoggingBuilderExtensions` by removing unused methods
 - Code maintainability with centralized dialog service
 - Testability through mockable dialog interface  
 - User experience with professional About dialog
@@ -42,8 +65,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 - Long file paths in diff window titles now show only filename for better readability
+- Startup error logging now uses proper user-specific directories
+
+### Removed
+- Unused template file `Class1.cs` from `Differ.Common` project
+- Redundant `.ReadFrom.Configuration()` call in logging setup
+- Unused `AddDifferLogLevelConfiguration()` extension method
+- Redundant `LevelOverrides` in Development configuration
 
 ### Documentation
+- `docs/LOGGING_REFACTORING.md` - Complete logging refactoring summary
+- `docs/SPRINT4_PLAN.md` - Sprint 4 planning document
 - `docs/SPRINT1_BRANDING_COMPLETE.md` - Sprint 1 completion report
 - `docs/SPRINT1_VISUAL_SUMMARY.md` - Visual before/after comparison
 - `docs/SPRINT1_TESTING_CHECKLIST.md` - Testing procedures

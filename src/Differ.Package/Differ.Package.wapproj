@@ -28,6 +28,7 @@
     <EntryPointProjectUniqueName>..\Differ.App\Differ.App.csproj</EntryPointProjectUniqueName>
     <EntryPointProjectType>None</EntryPointProjectType>
     <EntryPointProjectTargetPlatformIdentifier>WindowsClassicDesktop</EntryPointProjectTargetPlatformIdentifier>
+    <RestoreProjectStyle>None</RestoreProjectStyle>
   </PropertyGroup>
 
   <ItemGroup>

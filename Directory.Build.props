@@ -1,0 +1,7 @@
+<Project>
+  <PropertyGroup Condition="'$(MSBuildProjectExtension)'=='.wapproj'">
+    <RestoreProjectStyle>None</RestoreProjectStyle>
+    <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
+    <RestoreNoWarn>$(RestoreNoWarn);NU1503</RestoreNoWarn>
+  </PropertyGroup>
+</Project>

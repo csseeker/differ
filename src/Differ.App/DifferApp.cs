@@ -1,11 +1,13 @@
+using Differ.Common;
 using Differ.Core.Interfaces;
 using Differ.Core.Services;
 using Differ.UI.Services;
 using Differ.UI.ViewModels;
 using Differ.UI.Views;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Serilog;
 using System;
 using System.IO;
 using System.Windows;
@@ -25,14 +27,15 @@ public class DifferApp : Application
         {
             // Build the host with dependency injection
             _host = Host.CreateDefaultBuilder()
-                .ConfigureServices(ConfigureServices)
-                .ConfigureLogging(logging =>
+                .ConfigureAppConfiguration((context, config) =>
                 {
-                    logging.ClearProviders();
-                    logging.AddConsole();
-                    logging.AddDebug();
-                    logging.SetMinimumLevel(LogLevel.Information);
+                    config.SetBasePath(AppContext.BaseDirectory)
+                        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                        .AddJsonFile($"appsettings.{context.HostingEnvironment.EnvironmentName}.json", optional: true)
+                        .AddEnvironmentVariables(prefix: "DIFFER_");
                 })
+                .UseDifferLogging()
+                .ConfigureServices(ConfigureServices)
                 .Build();
 
             await _host.StartAsync();
@@ -43,16 +46,9 @@ public class DifferApp : Application
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"[DifferApp] Failed to start application: {ex}");
-            try
-            {
-                var logPath = Path.Combine(AppContext.BaseDirectory, "startup-error.log");
-                File.AppendAllText(logPath, $"[{DateTime.Now:O}] {ex}\n");
-            }
-            catch
-            {
-                // Ignore logging failures
-            }
+            // Fallback logging before DI is set up
+            LogStartupError(ex);
+
             MessageBox.Show(
                 $"Failed to start application: {ex.Message}",
                 "Application Error",
@@ -71,7 +67,29 @@ public class DifferApp : Application
             _host.Dispose();
         }
 
+        Log.CloseAndFlush();
+
         base.OnExit(e);
+    }
+
+    private static void LogStartupError(Exception ex)
+    {
+        try
+        {
+            var logPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "Differ",
+                "Logs",
+                "startup-error.log");
+
+            Directory.CreateDirectory(Path.GetDirectoryName(logPath)!);
+            File.AppendAllText(logPath, $"[{DateTime.Now:O}] {ex}\n");
+        }
+        catch
+        {
+            // If we can't log to file, write to console as last resort
+            Console.Error.WriteLine($"[CRITICAL] Startup failed and couldn't write log: {ex}");
+        }
     }
 
     private static void ConfigureServices(IServiceCollection services)

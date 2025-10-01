@@ -26,6 +26,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Differ.Core\Differ.Core.csproj" />
     <ProjectReference Include="..\..\src\Differ.UI\Differ.UI.csproj" />
+    <ProjectReference Include="..\..\src\Differ.Common\Differ.Common.csproj" />
   </ItemGroup>
 
 </Project>
