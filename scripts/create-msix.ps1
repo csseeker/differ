@@ -29,13 +29,41 @@ function Resolve-Tool {
         [string]$HintPath
     )
 
+    # 1. Check if explicit path was provided
     if (-not [string]::IsNullOrWhiteSpace($HintPath) -and (Test-Path $HintPath)) {
         return (Resolve-Path $HintPath).Path
     }
 
+    # 2. Check if tool is in PATH
     $resolved = Get-Command $ToolName -ErrorAction SilentlyContinue
     if ($resolved) {
         return $resolved.Source
+    }
+
+    # 3. For makeappx.exe, search in common Windows SDK locations across all drives
+    if ($ToolName -eq "makeappx.exe") {
+        Write-Host "  Searching for makeappx.exe in Windows SDK locations..." -ForegroundColor Gray
+        
+        # Get all fixed drives (C:, D:, etc.)
+        $drives = Get-PSDrive -PSProvider FileSystem | Where-Object { $_.Root -match '^[A-Z]:\\$' }
+        
+        # Common Windows SDK paths (relative to drive root)
+        $commonPaths = @(
+            "Program Files (x86)\Windows Kits\10\bin\*\x64\makeappx.exe",
+            "Program Files\Windows Kits\10\bin\*\x64\makeappx.exe",
+            "Windows Kits\10\bin\*\x64\makeappx.exe"
+        )
+        
+        foreach ($drive in $drives) {
+            foreach ($pathPattern in $commonPaths) {
+                $fullPath = Join-Path $drive.Root $pathPattern
+                $found = Get-ChildItem -Path $fullPath -ErrorAction SilentlyContinue | Select-Object -First 1
+                if ($found) {
+                    Write-Host "  [OK] Found makeappx.exe at: $($found.FullName)" -ForegroundColor Green
+                    return $found.FullName
+                }
+            }
+        }
     }
 
     throw "Unable to locate $ToolName. Ensure it is installed and in PATH, or provide an explicit path via script parameters."
