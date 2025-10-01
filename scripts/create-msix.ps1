@@ -62,12 +62,33 @@ New-Item -ItemType Directory -Path $stagingDir | Out-Null
 Write-Host "Copying published files to staging..."
 Copy-Item -Path (Join-Path $PublishDir '*') -Destination $stagingDir -Recurse -Force
 
-# Ensure Assets and create placeholder logos if missing
+# Copy icons from source (single source of truth)
 $assetsDir = Join-Path $stagingDir 'Assets'
 if (-not (Test-Path $assetsDir)) {
     New-Item -ItemType Directory -Path $assetsDir | Out-Null
 }
 
+$sourceIconsDir = Join-Path $PSScriptRoot '..\src\Differ.Package\Images'
+if (Test-Path $sourceIconsDir) {
+    Write-Host "Copying icons from source: $sourceIconsDir"
+    $iconFiles = @('Square150x150Logo.png', 'Square44x44Logo.png', 'Wide310x150Logo.png', 'StoreLogo.png')
+    
+    foreach ($iconFile in $iconFiles) {
+        $sourcePath = Join-Path $sourceIconsDir $iconFile
+        $destPath = Join-Path $assetsDir $iconFile
+        
+        if (Test-Path $sourcePath) {
+            Copy-Item -Path $sourcePath -Destination $destPath -Force
+            Write-Host "  [OK] Copied $iconFile" -ForegroundColor Green
+        } else {
+            Write-Host "  [!] Source icon not found: $sourcePath (will generate placeholder)" -ForegroundColor Yellow
+        }
+    }
+} else {
+    Write-Host "Source icons directory not found at $sourceIconsDir" -ForegroundColor Yellow
+}
+
+# Generate placeholder logos for any missing icons
 try {
     Add-Type -AssemblyName System.Drawing
 } catch {
@@ -111,7 +132,7 @@ function Ensure-Logo {
 
     $logoPath = Join-Path $assetsDir $LogoName
     if (-not (Test-Path $logoPath)) {
-        Write-Host "Generating placeholder $LogoName ($Width x $Height)."
+        Write-Host "  [!] Generating placeholder $LogoName ($Width x $Height)." -ForegroundColor Yellow
         $initialsSource = if ($DisplayName) { $DisplayName } else { 'DI' }
         $text = ($initialsSource.Substring(0, [Math]::Min(2, $initialsSource.Length))).ToUpper()
         New-Logo -Path $logoPath -Width $Width -Height $Height -Text $text
