@@ -7,7 +7,7 @@ param(
     [string]$DisplayName = "Differ",
     [string]$Description = "Compare directories and files quickly.",
     [string]$ApplicationId = "Differ",
-    [string]$Executable = "DifferApp.exe",
+    [string]$Executable = "Differ.App.exe",
     [string]$Version = "1.0.0.0",
     [ValidateSet("x86", "x64", "arm64")]
     [string]$Architecture = "x64",
@@ -206,7 +206,11 @@ $msixName = "{0}_{1}_{2}.msix" -f $ApplicationId, $Version, $Architecture
 $msixPath = Join-Path $resolvedOutputDir $msixName
 Write-Host "Packing MSIX to $msixPath"
 
-& $makeAppxExe pack /d $stagingDir /p $msixPath /l /o | Write-Host
+# Suppress verbose "Its path in the package will be..." messages by filtering output
+& $makeAppxExe pack /d $stagingDir /p $msixPath /l /o 2>&1 | Where-Object { 
+    $_ -notmatch "Its path in the package will be" -and 
+    $_ -notmatch "^\s*$" 
+} | Write-Host
 
 if ($Sign) {
     $signtoolExe = Resolve-Tool -ToolName 'signtool.exe' -HintPath $SigntoolPath

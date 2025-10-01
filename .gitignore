@@ -6,6 +6,7 @@
 
 # Test results
 /TestResults/
+/logs/
 
 # User-specific files
 *.user

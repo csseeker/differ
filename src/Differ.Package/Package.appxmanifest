@@ -28,7 +28,7 @@
   </Dependencies>
 
   <Applications>
-    <Application Id="Differ" Executable="DifferApp.exe" EntryPoint="Windows.FullTrustApplication">
+    <Application Id="Differ" Executable="Differ.App.exe" EntryPoint="Windows.FullTrustApplication">
       <uap:VisualElements
         DisplayName="Differ - Directory Comparison Tool"
         Description="A professional, fast, and intuitive tool for comparing directories and files on Windows."
