@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
+using System.IO;
 using System.Windows;
 
 /// <summary>
@@ -42,6 +43,16 @@ public class DifferApp : Application
         }
         catch (Exception ex)
         {
+            Console.Error.WriteLine($"[DifferApp] Failed to start application: {ex}");
+            try
+            {
+                var logPath = Path.Combine(AppContext.BaseDirectory, "startup-error.log");
+                File.AppendAllText(logPath, $"[{DateTime.Now:O}] {ex}\n");
+            }
+            catch
+            {
+                // Ignore logging failures
+            }
             MessageBox.Show(
                 $"Failed to start application: {ex.Message}",
                 "Application Error",
@@ -72,6 +83,7 @@ public class DifferApp : Application
         services.AddSingleton<ITextDiffService, TextDiffService>();
 
         // Register UI services
+        services.AddSingleton<IDialogService, DialogService>();
         services.AddSingleton<MainViewModel>();
         services.AddSingleton<MainWindow>();
         services.AddTransient<FileDiffViewModel>();

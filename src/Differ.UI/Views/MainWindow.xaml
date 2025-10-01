@@ -3,7 +3,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:converters="clr-namespace:Differ.UI.Converters"
         xmlns:models="clr-namespace:Differ.UI.Models"
-        Title="Differ - Directory Comparison Tool" 
+        Title="Differ - Directory Comparison Tool"
+        Icon="pack://application:,,,/Differ.App;component/Resources/icon-256.png"
         Height="600" 
         Width="1000"
         MinHeight="400"
@@ -50,12 +51,20 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
+        <!-- Menu Bar -->
+        <Menu Grid.Row="0">
+            <MenuItem Header="_Help">
+                <MenuItem Header="_About Differ" Command="{Binding ShowAboutCommand}"/>
+            </MenuItem>
+        </Menu>
+
         <!-- Directory Selection -->
-        <GroupBox Grid.Row="0" Header="Directory Selection" Margin="10">
+        <GroupBox Grid.Row="1" Header="Directory Selection" Margin="10">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -67,7 +76,6 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-
                 <!-- Left Directory -->
                 <Label Grid.Row="0" Grid.Column="0" Content="Left Directory:"/>
                 <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding LeftDirectoryPath, UpdateSourceTrigger=PropertyChanged}"/>
@@ -98,7 +106,7 @@
         </GroupBox>
 
         <!-- Summary -->
-        <GroupBox Grid.Row="1" Header="Comparison Summary" Margin="10" Visibility="{Binding ComparisonSummary, Converter={StaticResource NullToVisibilityConverter}}">
+        <GroupBox Grid.Row="2" Header="Comparison Summary" Margin="10" Visibility="{Binding ComparisonSummary, Converter={StaticResource NullToVisibilityConverter}}">
             <ItemsControl ItemsSource="{Binding ComparisonSummary, Converter={StaticResource SummaryToFilterButtonsConverter}}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -121,7 +129,7 @@
         </GroupBox>
 
         <!-- Panes -->
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="3">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
@@ -216,7 +224,7 @@
         </Grid>
 
         <!-- Status Bar -->
-        <StatusBar Grid.Row="3">
+        <StatusBar Grid.Row="4">
             <StatusBarItem>
                 <TextBlock Text="{Binding StatusMessage}"/>
             </StatusBarItem>

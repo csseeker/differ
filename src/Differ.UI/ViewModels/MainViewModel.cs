@@ -5,6 +5,7 @@ using Differ.Core.Models;
 using Differ.UI.Models;
 using Differ.UI.Resources;
 using Differ.UI.Services;
+using Differ.UI.Views;
 using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -23,6 +24,7 @@ public partial class MainViewModel : ObservableObject
     private readonly IDirectoryComparisonService _comparisonService;
     private readonly ILogger<MainViewModel> _logger;
     private readonly IFileDiffNavigationService _fileDiffNavigationService;
+    private readonly IDialogService _dialogService;
     private CancellationTokenSource? _cancellationTokenSource;
 
     [ObservableProperty]
@@ -61,11 +63,13 @@ public partial class MainViewModel : ObservableObject
     public MainViewModel(
         IDirectoryComparisonService comparisonService,
         ILogger<MainViewModel> logger,
-        IFileDiffNavigationService fileDiffNavigationService)
+        IFileDiffNavigationService fileDiffNavigationService,
+        IDialogService dialogService)
     {
         _comparisonService = comparisonService ?? throw new ArgumentNullException(nameof(comparisonService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _fileDiffNavigationService = fileDiffNavigationService ?? throw new ArgumentNullException(nameof(fileDiffNavigationService));
+        _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
     }
 
     partial void OnLeftDirectoryPathChanged(string value)
@@ -333,11 +337,9 @@ public partial class MainViewModel : ObservableObject
         {
             _logger.LogError(ex, "Failed to open diff window for {RelativePath}", comparisonItem.RelativePath);
             StatusMessage = AppMessages.DiffFailed;
-            MessageBox.Show(
+            _dialogService.ShowError(
                 $"Unable to open diff view: {ex.Message}",
-                AppMessages.DiffErrorTitle,
-                MessageBoxButton.OK,
-                MessageBoxImage.Error);
+                AppMessages.DiffErrorTitle);
         }
     }
 
@@ -380,11 +382,9 @@ public partial class MainViewModel : ObservableObject
                 StatusMessage = AppMessages.ComparisonFailed(result.ErrorMessage);
                 _logger.LogError("Directory comparison failed: {Error}", result.ErrorMessage);
                 
-                System.Windows.MessageBox.Show(
+                _dialogService.ShowError(
                     $"Comparison failed: {result.ErrorMessage}",
-                    AppMessages.ComparisonErrorTitle,
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                    AppMessages.ComparisonErrorTitle);
             }
         }
         catch (OperationCanceledException)
@@ -397,11 +397,9 @@ public partial class MainViewModel : ObservableObject
             StatusMessage = AppMessages.UnexpectedError(ex.Message);
             _logger.LogError(ex, "Unexpected error during directory comparison");
             
-            System.Windows.MessageBox.Show(
+            _dialogService.ShowError(
                 $"An unexpected error occurred: {ex.Message}",
-                AppMessages.ApplicationErrorTitle,
-                MessageBoxButton.OK,
-                MessageBoxImage.Error);
+                AppMessages.ApplicationErrorTitle);
         }
         finally
         {
@@ -436,10 +434,20 @@ public partial class MainViewModel : ObservableObject
             // Fallback to a simple message if folder browser fails
             System.Windows.MessageBox.Show(
                 "Unable to open folder browser. Please type the path manually.",
-                "Browse Error",
+                AppMessages.WarningTitle,
                 MessageBoxButton.OK,
                 MessageBoxImage.Warning);
             return null;
         }
+    }
+
+    [RelayCommand]
+    private void ShowAbout()
+    {
+        var aboutWindow = new AboutWindow
+        {
+            Owner = Application.Current.MainWindow
+        };
+        aboutWindow.ShowDialog();
     }
 }

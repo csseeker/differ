@@ -1,6 +1,7 @@
 using Differ.Core.Interfaces;
 using Differ.Core.Services;
 using Differ.UI.Resources;
+using Differ.UI.Services;
 using Differ.UI.ViewModels;
 using Differ.UI.Views;
 using Microsoft.Extensions.DependencyInjection;
@@ -70,8 +71,11 @@ public class App : Application
         services.AddSingleton<IDirectoryScanner, DirectoryScanner>();
         services.AddSingleton<IFileComparer, HashFileComparer>();
         services.AddSingleton<IDirectoryComparisonService, DirectoryComparisonService>();
+        services.AddSingleton<ITextDiffService, TextDiffService>();
 
         // Register UI services
+        services.AddSingleton<IDialogService, DialogService>();
+        services.AddSingleton<IFileDiffNavigationService, FileDiffNavigationService>();
         services.AddSingleton<MainViewModel>();
         services.AddSingleton<MainWindow>();
     }

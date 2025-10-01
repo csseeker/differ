@@ -2,15 +2,16 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Differ.Core.Interfaces;
 using Differ.Core.Models;
+using Differ.UI.Models;
+using Differ.UI.Resources;
+using Differ.UI.Services;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
-using Differ.UI.Models;
-using Differ.UI.Resources;
-using Microsoft.Extensions.Logging;
 
 namespace Differ.UI.ViewModels;
 
@@ -21,6 +22,7 @@ public partial class FileDiffViewModel : ObservableObject, IDisposable
 {
     private readonly ITextDiffService _textDiffService;
     private readonly ILogger<FileDiffViewModel> _logger;
+    private readonly IDialogService _dialogService;
     private readonly Dispatcher _dispatcher;
 
     private CancellationTokenSource? _loadCancellationSource;
@@ -64,10 +66,11 @@ public partial class FileDiffViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private bool _showWhitespaceCharacters;
 
-    public FileDiffViewModel(ITextDiffService textDiffService, ILogger<FileDiffViewModel> logger)
+    public FileDiffViewModel(ITextDiffService textDiffService, ILogger<FileDiffViewModel> logger, IDialogService dialogService)
     {
         _textDiffService = textDiffService ?? throw new ArgumentNullException(nameof(textDiffService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
         _dispatcher = Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;
     }
 
@@ -177,14 +180,7 @@ public partial class FileDiffViewModel : ObservableObject, IDisposable
                 var message = AppMessages.DiffComputationFailed(result.ErrorMessage);
                 StatusMessage = message;
 
-                await _dispatcher.InvokeAsync(() =>
-                {
-                    MessageBox.Show(
-                        message,
-                        AppMessages.DiffErrorTitle,
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Warning);
-                });
+                await _dialogService.ShowWarningAsync(message, AppMessages.DiffErrorTitle);
                 return;
             }
 
@@ -202,14 +198,9 @@ public partial class FileDiffViewModel : ObservableObject, IDisposable
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unexpected error while loading diff window.");
-            await _dispatcher.InvokeAsync(() =>
-            {
-                MessageBox.Show(
-                    AppMessages.UnexpectedDiffError(ex.Message),
-                    AppMessages.DiffErrorTitle,
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-            });
+            await _dialogService.ShowErrorAsync(
+                AppMessages.UnexpectedDiffError(ex.Message),
+                AppMessages.DiffErrorTitle);
             StatusMessage = "Failed to load diff.";
         }
         finally
