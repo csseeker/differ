@@ -3,7 +3,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:converters="clr-namespace:Differ.UI.Converters"
         xmlns:models="clr-namespace:Differ.UI.Models"
-        Title="Directory Differ" 
+        Title="Differ - Directory Comparison Tool" 
         Height="600" 
         Width="1000"
         MinHeight="400"

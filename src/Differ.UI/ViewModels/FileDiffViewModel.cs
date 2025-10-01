@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using Differ.UI.Models;
+using Differ.UI.Resources;
 using Microsoft.Extensions.Logging;
 
 namespace Differ.UI.ViewModels;
@@ -43,7 +44,7 @@ public partial class FileDiffViewModel : ObservableObject, IDisposable
     private bool _isLoading;
 
     [ObservableProperty]
-    private string _statusMessage = "Ready";
+    private string _statusMessage = AppMessages.Ready;
 
     [ObservableProperty]
     private DiffSummary? _summary;
@@ -84,14 +85,17 @@ public partial class FileDiffViewModel : ObservableObject, IDisposable
         OnPropertyChanged(nameof(LeftFilePath));
         OnPropertyChanged(nameof(RightFilePath));
 
-        Title = string.IsNullOrWhiteSpace(displayName)
-            ? $"{LeftFileName} ↔ {RightFileName}"
-            : displayName!;
+        // Use just the filename for the window title for better readability
+        var fileName = string.IsNullOrWhiteSpace(displayName)
+            ? LeftFileName
+            : System.IO.Path.GetFileName(displayName);
+
+        Title = AppMessages.FileDiffWindowTitle(fileName);
 
         Summary = null;
         SummaryText = null;
         DiffLines.Clear();
-        StatusMessage = "Ready";
+        StatusMessage = AppMessages.Ready;
 
         _isInitialised = true;
     }
@@ -145,7 +149,7 @@ public partial class FileDiffViewModel : ObservableObject, IDisposable
         {
             IsLoading = true;
             ProgressValue = 0;
-            StatusMessage = "Computing diff...";
+            StatusMessage = AppMessages.ComputingDiff;
 
             var request = new TextDiffRequest
             {
@@ -161,7 +165,7 @@ public partial class FileDiffViewModel : ObservableObject, IDisposable
 
             if (linkedToken.IsCancellationRequested)
             {
-                StatusMessage = "Diff cancelled.";
+                StatusMessage = AppMessages.DiffComputationCancelled;
                 return;
             }
 
@@ -170,14 +174,14 @@ public partial class FileDiffViewModel : ObservableObject, IDisposable
                 await ClearLinesAsync();
                 Summary = null;
                 SummaryText = null;
-                var message = result.ErrorMessage ?? "Unable to compute diff.";
+                var message = AppMessages.DiffComputationFailed(result.ErrorMessage);
                 StatusMessage = message;
 
                 await _dispatcher.InvokeAsync(() =>
                 {
                     MessageBox.Show(
                         message,
-                        "Diff Error",
+                        AppMessages.DiffErrorTitle,
                         MessageBoxButton.OK,
                         MessageBoxImage.Warning);
                 });
@@ -193,7 +197,7 @@ public partial class FileDiffViewModel : ObservableObject, IDisposable
         }
         catch (OperationCanceledException)
         {
-            StatusMessage = "Diff cancelled.";
+            StatusMessage = AppMessages.DiffComputationCancelled;
         }
         catch (Exception ex)
         {
@@ -201,8 +205,8 @@ public partial class FileDiffViewModel : ObservableObject, IDisposable
             await _dispatcher.InvokeAsync(() =>
             {
                 MessageBox.Show(
-                    $"An unexpected error occurred: {ex.Message}",
-                    "Diff Error",
+                    AppMessages.UnexpectedDiffError(ex.Message),
+                    AppMessages.DiffErrorTitle,
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             });

@@ -13,9 +13,9 @@
     ProcessorArchitecture="x64" />
 
   <Properties>
-    <DisplayName>Differ</DisplayName>
+    <DisplayName>Differ - Directory Comparison Tool</DisplayName>
     <PublisherDisplayName>csseeker</PublisherDisplayName>
-    <Description>Compare directories and files quickly.</Description>
+    <Description>A professional, fast, and intuitive tool for comparing directories and files on Windows. Built with .NET 8 and WPF.</Description>
     <Logo>Images\\StoreLogo.png</Logo>
   </Properties>
 
@@ -30,8 +30,8 @@
   <Applications>
     <Application Id="Differ" Executable="DifferApp.exe" EntryPoint="Windows.FullTrustApplication">
       <uap:VisualElements
-        DisplayName="Differ"
-        Description="Compare directories and files quickly."
+        DisplayName="Differ - Directory Comparison Tool"
+        Description="A professional, fast, and intuitive tool for comparing directories and files on Windows."
         BackgroundColor="transparent"
         Square150x150Logo="Images\\Square150x150Logo.png"
         Square44x44Logo="Images\\Square44x44Logo.png">

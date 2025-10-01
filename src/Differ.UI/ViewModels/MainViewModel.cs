@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Differ.Core.Interfaces;
 using Differ.Core.Models;
 using Differ.UI.Models;
+using Differ.UI.Resources;
 using Differ.UI.Services;
 using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
@@ -31,7 +32,7 @@ public partial class MainViewModel : ObservableObject
     private string _rightDirectoryPath = string.Empty;
 
     [ObservableProperty]
-    private string _statusMessage = "Ready";
+    private string _statusMessage = AppMessages.Ready;
 
     [ObservableProperty]
     private bool _isComparing = false;
@@ -305,7 +306,7 @@ public partial class MainViewModel : ObservableObject
 
         if (comparisonItem.LeftItem?.IsDirectory == true || comparisonItem.RightItem?.IsDirectory == true)
         {
-            StatusMessage = "Diff view is available for files only.";
+            StatusMessage = AppMessages.DiffUnavailableForDirectories;
             return;
         }
 
@@ -314,27 +315,27 @@ public partial class MainViewModel : ObservableObject
 
         if (string.IsNullOrWhiteSpace(leftPath) || string.IsNullOrWhiteSpace(rightPath))
         {
-            StatusMessage = "Unable to locate files for diff view.";
+            StatusMessage = AppMessages.DiffFilesNotFound;
             return;
         }
 
         try
         {
-            StatusMessage = $"Opening diff for {comparisonItem.RelativePath}...";
+            StatusMessage = AppMessages.OpeningDiff(comparisonItem.RelativePath);
             await _fileDiffNavigationService.ShowDiffAsync(leftPath, rightPath, comparisonItem.RelativePath);
-            StatusMessage = $"Diff opened for {comparisonItem.RelativePath}.";
+            StatusMessage = AppMessages.DiffOpened(comparisonItem.RelativePath);
         }
         catch (OperationCanceledException)
         {
-            StatusMessage = "Diff opening cancelled.";
+            StatusMessage = AppMessages.DiffCancelled;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to open diff window for {RelativePath}", comparisonItem.RelativePath);
-            StatusMessage = "Failed to open diff window.";
+            StatusMessage = AppMessages.DiffFailed;
             MessageBox.Show(
                 $"Unable to open diff view: {ex.Message}",
-                "Diff Error",
+                AppMessages.DiffErrorTitle,
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
         }
@@ -356,7 +357,7 @@ public partial class MainViewModel : ObservableObject
             var progress = new Progress<string>(message => StatusMessage = message);
             
             _logger.LogInformation("Starting directory comparison");
-            StatusMessage = "Starting comparison...";
+            StatusMessage = AppMessages.StartingComparison;
 
             stopwatch.Start();
 
@@ -371,34 +372,34 @@ public partial class MainViewModel : ObservableObject
             if (result.IsSuccess)
             {
                 ComparisonResult = result.Data;
-                StatusMessage = $"Comparison completed in {stopwatch.Elapsed.TotalSeconds:F2} seconds. Found {result.Data!.Items.Count} items.";
+                StatusMessage = AppMessages.ComparisonCompleted(result.Data!.Items.Count, stopwatch.Elapsed.TotalSeconds);
                 _logger.LogInformation("Directory comparison completed successfully in {ElapsedMilliseconds}ms", stopwatch.ElapsedMilliseconds);
             }
             else
             {
-                StatusMessage = $"Comparison failed: {result.ErrorMessage}";
+                StatusMessage = AppMessages.ComparisonFailed(result.ErrorMessage);
                 _logger.LogError("Directory comparison failed: {Error}", result.ErrorMessage);
                 
                 System.Windows.MessageBox.Show(
                     $"Comparison failed: {result.ErrorMessage}",
-                    "Error",
+                    AppMessages.ComparisonErrorTitle,
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
         }
         catch (OperationCanceledException)
         {
-            StatusMessage = "Comparison cancelled";
+            StatusMessage = AppMessages.ComparisonCancelled;
             _logger.LogInformation("Directory comparison was cancelled");
         }
         catch (Exception ex)
         {
-            StatusMessage = $"Unexpected error: {ex.Message}";
+            StatusMessage = AppMessages.UnexpectedError(ex.Message);
             _logger.LogError(ex, "Unexpected error during directory comparison");
             
             System.Windows.MessageBox.Show(
                 $"An unexpected error occurred: {ex.Message}",
-                "Error",
+                AppMessages.ApplicationErrorTitle,
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
         }
@@ -414,7 +415,7 @@ public partial class MainViewModel : ObservableObject
     private void CancelComparison()
     {
         _cancellationTokenSource?.Cancel();
-        StatusMessage = "Cancelling comparison...";
+        StatusMessage = AppMessages.CancellingComparison;
     }
 
     private static string? BrowseForDirectory(string description)

@@ -1,5 +1,6 @@
 using Differ.Core.Interfaces;
 using Differ.Core.Services;
+using Differ.UI.Resources;
 using Differ.UI.ViewModels;
 using Differ.UI.Views;
 using Microsoft.Extensions.DependencyInjection;
@@ -43,8 +44,8 @@ public class App : Application
         catch (Exception ex)
         {
             System.Windows.MessageBox.Show(
-                $"Failed to start application: {ex.Message}",
-                "Application Error",
+                AppMessages.ApplicationStartupFailed(ex.Message),
+                AppMessages.ApplicationErrorTitle,
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
             
