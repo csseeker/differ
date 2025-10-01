@@ -86,7 +86,7 @@ The repository includes a PowerShell script that wraps Option B and handles mani
    - Copies the publish output into a staging folder.
    - Generates placeholder tile/logo assets if they are missing.
    - Emits an `AppxManifest.xml` by tokenising `docs/assets/AppxManifest.sample.xml`.
-   - Calls `makeappx.exe` to produce `Differ_1.0.0.0_x64.msix` under the output directory.
+   - Calls `makeappx.exe` to produce `Differ_1.0.0.0_x64.msix` under the output directory. It could be on D drive.
    - (Optional) Signs and verifies the package when `-Sign` is provided.
 
    > **Note:** The script depends on the Windows SDK tools (`makeappx.exe`, `signtool.exe`) and the .NET `System.Drawing` assembly. Run it on Windows with the Desktop Runtime installed.

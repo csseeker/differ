@@ -9,13 +9,13 @@
   <Identity
     Name="csseeker.Differ"
     Publisher="CN=csseeker"
-    Version="1.0.0.0"
+    Version="0.2.0.0"
     ProcessorArchitecture="x64" />
 
   <Properties>
     <DisplayName>Differ - Directory Comparison Tool</DisplayName>
     <PublisherDisplayName>csseeker</PublisherDisplayName>
-    <Description>A professional, fast, and intuitive tool for comparing directories and files on Windows. Built with .NET 8 and WPF.</Description>
+    <Description>A fast and intuitive tool for comparing directories and files on Windows. Built with .NET 8 and WPF.</Description>
     <Logo>Images\\StoreLogo.png</Logo>
   </Properties>
 

@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.0.2-alpha] - 2025-10-01
+
 ### Added
 - **Structured Logging Infrastructure (Sprint 4):**
   - New `Differ.Common` project for cross-cutting concerns
