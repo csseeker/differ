@@ -104,4 +104,4 @@ Project is in **design phase** with comprehensive guidelines established. When i
 - Build WPF UI with proper MVVM binding
 - Use built-in .NET DI for service registration
 
-Reference `DESIGN_GUIDELINES.md` for detailed architectural decisions and implementation standards.
+Reference `docs/DESIGN_GUIDELINES.md` for detailed architectural decisions and implementation standards.

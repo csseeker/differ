@@ -128,7 +128,7 @@ The application follows a clean, modular architecture with clear separation of c
 
 ## Contributing
 
-1. Follow the coding conventions outlined in [`DESIGN_GUIDELINES.md`](DESIGN_GUIDELINES.md)
+1. Follow the coding conventions outlined in [`DESIGN_GUIDELINES.md`](docs/DESIGN_GUIDELINES.md)
 2. Ensure all tests pass and maintain >90% code coverage
 3. Use the result pattern for error handling instead of exceptions
 4. All I/O operations must be async with `CancellationToken` support

@@ -77,4 +77,4 @@ The MSIX packaging script copies icons from `src/Differ.Package/Images/` into `a
 
 - [MSIX packaging guide](../distribution/msix-packaging.md)
 - [Installing Differ guide](../user-guide/installing-differ.md) – describes the user-facing impact of icon updates.
-- [Design guidelines](../../DESIGN_GUIDELINES.md) – broader UX principles.
+- [Design guidelines](../DESIGN_GUIDELINES.md) – broader UX principles.

@@ -45,7 +45,7 @@ Large comparisons run asynchronously; you can cancel anytime with the **Stop** b
 
 - Need more install detail or troubleshooting? Jump to the [Installing Differ guide](../user-guide/installing-differ.md).
 - Want to build from source? Follow the instructions in [`README.md`](../../README.md#building-from-source).
-- Curious about how the app is put together? Review the [architecture overview](architecture.md) and the full [`DESIGN_GUIDELINES.md`](../../DESIGN_GUIDELINES.md).
+- Curious about how the app is put together? Review the [architecture overview](architecture.md) and the full [`DESIGN_GUIDELINES.md`](../DESIGN_GUIDELINES.md).
 - Updating icons or branding? See the [branding guide](../branding/icons.md).
 
 ---

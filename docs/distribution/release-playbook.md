@@ -126,4 +126,4 @@ Track these metrics when adding new features and list exceptions in release note
 - [Certificates & signing](certificates.md)
 - [QA checklist](../QA.md) – full matrix if you need the long form
 - [Installation guide](../user-guide/installing-differ.md) – link in release notes for end users
-- [Design guidelines](../../DESIGN_GUIDELINES.md) – for contributor consistency
+- [Design guidelines](../DESIGN_GUIDELINES.md) – for contributor consistency

@@ -50,6 +50,6 @@ Additional shared utilities live in `Differ.Common` (logging helpers, cross-cutt
 
 ## Further reading
 
-- Full implementation standards live in [`DESIGN_GUIDELINES.md`](../../DESIGN_GUIDELINES.md).
+- Full implementation standards live in [`DESIGN_GUIDELINES.md`](../DESIGN_GUIDELINES.md).
 - UI and branding guidelines: [Branding & icons](../branding/icons.md).
 - Packaging and release process: [Release playbook](../distribution/release-playbook.md).
