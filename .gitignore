@@ -29,3 +29,9 @@ AppPackages/
 
 # Visual Studio
 .vs/
+
+# Code signing certificates (SECURITY: Never commit private keys!)
+*.pfx
+*.p12
+differ-signing-cert.*
+!differ-signing-cert.cer  # Allow public certificate only
