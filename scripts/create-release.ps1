@@ -6,7 +6,10 @@ param(
     [string]$OutputDir = "artifacts",
     [string]$Publisher = "CN=csseeker",
     [string]$PublisherDisplayName = "csseeker",
-    [switch]$SkipMsix
+    [switch]$SkipMsix,
+    [string]$CertificatePath = "differ-signing-cert.cer",
+    [string]$CertificatePfxPath = "differ-signing-cert.pfx",
+    [string]$CertificatePassword = ""
 )
 
 Set-StrictMode -Version Latest
@@ -17,6 +20,14 @@ $ErrorActionPreference = 'Stop'
 # =================================================================
 $ProjectRoot = $PSScriptRoot | Split-Path -Parent
 $LogDir = Join-Path $ProjectRoot "logs"
+
+if (-not [System.IO.Path]::IsPathRooted($CertificatePath)) {
+    $CertificatePath = Join-Path $ProjectRoot $CertificatePath
+}
+
+if (-not [System.IO.Path]::IsPathRooted($CertificatePfxPath)) {
+    $CertificatePfxPath = Join-Path $ProjectRoot $CertificatePfxPath
+}
 if (-not (Test-Path $LogDir)) {
     New-Item -ItemType Directory -Path $LogDir -Force | Out-Null
 }
@@ -56,12 +67,12 @@ Write-LogMessage ""
 # Define paths
 $ProjectFile = Join-Path $ProjectRoot "src\Differ.App\Differ.App.csproj"
 $OutputPath = Join-Path $ProjectRoot $OutputDir
-$PublishDir = Join-Path $OutputPath "release-v$Version"
+$PublishDir = Join-Path $OutputPath "release-bits-v$Version"
 $ZipFileName = "Differ-v$Version-portable-win-x64.zip"
 $ZipFilePath = Join-Path $OutputPath $ZipFileName
 $CreateMsixScript = Join-Path $ProjectRoot "scripts\create-msix.ps1"
 $RefreshAssetsScript = Join-Path $ProjectRoot "scripts\refresh-packaging-assets.ps1"
-$ReleaseNotesDir = Join-Path $ProjectRoot "docs\Releases"
+$ReleaseNotesDir = Join-Path $ProjectRoot "releases"
 $ReleaseNotesFile = Join-Path $ReleaseNotesDir "v$Version-alpha.md"
 
 Write-LogMessage ""
@@ -138,12 +149,30 @@ if (-not $SkipMsix) {
             $msixVersion = $cleanVersion
         }
         
-        & $CreateMsixScript `
-            -Version $msixVersion `
-            -PackageName "csseeker.Differ" `
-            -Publisher $Publisher `
-            -PublisherDisplayName $PublisherDisplayName `
-            -PublishDir $PublishDir 2>&1 | Out-Null
+        # Build create-msix.ps1 arguments
+        $createMsixArgs = @{
+            Version = $msixVersion
+            PackageName = "csseeker.Differ"
+            Publisher = $Publisher
+            PublisherDisplayName = $PublisherDisplayName
+            PublishDir = $PublishDir
+            OutputDir = $OutputPath
+        }
+        
+        # Add signing parameters if certificate exists
+        if (Test-Path $CertificatePfxPath) {
+            Write-LogMessage "  Signing MSIX with certificate..." "Gray"
+            $createMsixArgs['Sign'] = $true
+            $createMsixArgs['CertificatePath'] = $CertificatePfxPath
+            if ($CertificatePassword) {
+                $createMsixArgs['CertificatePassword'] = $CertificatePassword
+            }
+        } else {
+            Write-LogMessage "  [!] Warning: Certificate not found at $CertificatePfxPath - MSIX will be unsigned" "Yellow"
+            Write-LogMessage "      Run: powershell scripts\create-certificate.ps1" "Gray"
+        }
+        
+        & $CreateMsixScript @createMsixArgs 2>&1 | Out-Null
         
         $msixFileName = "Differ_$($msixVersion)_x64.msix"
         $msixFilePath = Join-Path $OutputPath $msixFileName
@@ -152,6 +181,34 @@ if (-not $SkipMsix) {
             $msixSize = (Get-Item $msixFilePath).Length
             $msixSizeMB = [math]::Round($msixSize / 1MB, 1)
             Write-LogMessage "  [+] Created MSIX: $msixFileName (Size: $msixSizeMB MB)" "Green"
+            
+            # Copy certificate and installation script to artifacts if they exist
+            if (Test-Path $CertificatePath) {
+                $certDestPath = Join-Path $OutputPath (Split-Path $CertificatePath -Leaf)
+                Copy-Item -Path $CertificatePath -Destination $certDestPath -Force
+                Write-LogMessage "  [+] Copied certificate for distribution" "Green"
+            }
+            
+            $installScriptPath = Join-Path $PSScriptRoot "install-certificate.ps1"
+            if (Test-Path $installScriptPath) {
+                $scriptDestPath = Join-Path $OutputPath "install-certificate.ps1"
+                Copy-Item -Path $installScriptPath -Destination $scriptDestPath -Force
+                Write-LogMessage "  [+] Copied certificate installation script" "Green"
+            }
+            
+            $completeInstallerPath = Join-Path $PSScriptRoot "install-differ.ps1"
+            if (Test-Path $completeInstallerPath) {
+                $installerDestPath = Join-Path $OutputPath "install-differ.ps1"
+                Copy-Item -Path $completeInstallerPath -Destination $installerDestPath -Force
+                Write-LogMessage "  [+] Copied complete installation script" "Green"
+            }
+            
+            $batchInstallerPath = Join-Path $PSScriptRoot "Install-Differ.bat"
+            if (Test-Path $batchInstallerPath) {
+                $batchDestPath = Join-Path $OutputPath "Install-Differ.bat"
+                Copy-Item -Path $batchInstallerPath -Destination $batchDestPath -Force
+                Write-LogMessage "  [+] Copied batch installer launcher" "Green"
+            }
         } else {
             Write-LogMessage "  [!] Warning: MSIX file not found at expected location" "Yellow"
         }
@@ -204,7 +261,7 @@ if (Test-Path $ReleaseNotesFile) {
 
 ## Installation
 
-### Portable Version (Recommended)
+### Portable Version (Recommended for Quick Start)
 
 1. Download ``$ZipFileName`` ($zipSizeMB MB) from the release assets
 2. Extract to any writable folder on your system
@@ -213,10 +270,28 @@ if (Test-Path $ReleaseNotesFile) {
 
 ### MSIX Package (Windows Store Integration)
 
-1. Download ``Differ_$($Version).0_x64.msix`` from the release assets
-2. Double-click to install (requires developer mode or certificate installation)
-3. Provides Start menu integration and automatic updates
-4. See ``docs/MSIX_PACKAGING.md`` for detailed installation instructions
+**First-time users:** You must install the signing certificate before installing the MSIX.
+
+1. Download these files from the release assets:
+   - ``Differ_$($Version).0_x64.msix`` - The installer
+   - ``differ-signing-cert.cer`` - The signing certificate
+   - ``install-certificate.ps1`` - The installation script
+
+2. **Install the certificate (one-time setup):**
+   - Right-click PowerShell and select "Run as Administrator"
+   - Navigate to your downloads folder
+   - Run: ``powershell -ExecutionPolicy Bypass -File install-certificate.ps1``
+   - Review and confirm the certificate installation
+
+3. **Install Differ:**
+   - Double-click ``Differ_$($Version).0_x64.msix``
+   - Click "Install"
+
+4. **Updating to newer versions:**
+   - No need to reinstall the certificate
+   - Simply download and install the new MSIX
+
+For detailed instructions, see [Installing Differ](https://github.com/csseeker/differ/blob/master/docs/user-guide/installing-differ.md)
 
 ## System Requirements
 
@@ -234,7 +309,7 @@ if (Test-Path $ReleaseNotesFile) {
 
 - [GitHub Repository](https://github.com/csseeker/differ)
 - [Report an Issue](https://github.com/csseeker/differ/issues)
-- [Documentation](https://github.com/csseeker/differ/tree/master/docs)
+- [Documentation](https://github.com/csseeker/differ/blob/master/docs/index.md)
 "@
     
     Set-Content -Path $ReleaseNotesFile -Value $releaseNotesTemplate
@@ -276,7 +351,7 @@ foreach ($artifact in $artifacts) {
 
 Write-LogMessage ""
 Write-LogMessage "Release Notes:" "Cyan"
-Write-LogMessage "  - docs\Releases\v$Version-alpha.md" "White"
+Write-LogMessage "  - releases\v$Version-alpha.md" "White"
 Write-LogMessage ""
 Write-LogMessage "Location: $OutputPath" "Cyan"
 Write-LogMessage ""

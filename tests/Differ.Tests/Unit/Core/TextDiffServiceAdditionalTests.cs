@@ -234,6 +234,9 @@ public class TextDiffServiceAdditionalTests : IDisposable
 
         var result = await service.ComputeDiffAsync(request, progress: progress);
 
+        // Give Progress<T> time to process the final callback on its synchronization context
+        await Task.Delay(100);
+
         result.IsSuccess.Should().BeTrue();
         progressReports.Should().NotBeEmpty();
         progressReports.Should().Contain(1.0); // Should complete at 100%

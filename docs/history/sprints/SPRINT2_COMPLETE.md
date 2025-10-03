@@ -8,7 +8,7 @@
 
 ## Overview
 
-Sprint 2 focused on adding application icons to improve visual branding and Windows integration. We've successfully integrated placeholder icons that can be easily replaced with custom designs later.
+Sprint 2 focused on adding application icons to improve visual branding and Windows integration. I've successfully integrated placeholder icons that can be easily replaced with custom designs later.
 
 ---
 

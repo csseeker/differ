@@ -31,7 +31,7 @@ Use this template when drafting notes for GitHub Releases. Remove sections that 
 1. Download `Differ-v<version>-win-x64.zip` from the release assets.
 2. Unzip to any writable folder.
 3. Run `DifferApp.exe`. Windows SmartScreen may prompt you to confirm.
-4. (Optional) Install the MSIX package for Start menu integration. See `docs/MSIX_PACKAGING.md`.
+4. (Optional) Install the MSIX package for Start menu integration. See `docs/distribution/msix-packaging.md`.
 
 ## Contributors
 
@@ -43,4 +43,4 @@ Use this template when drafting notes for GitHub Releases. Remove sections that 
 
 - [ ] Screenshots or GIFs updated (if applicable)
 - [ ] Documentation links updated (README, docs site)
-- [ ] QA checklist completed (`docs/QA.md`)
+- [ ] QA checklist completed (see `docs/distribution/release-playbook.md#quality-gates`)

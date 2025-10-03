@@ -118,9 +118,8 @@ magick convert $master -resize 50x50 "$out/StoreLogo.png"
 
 ## 📚 Related Documentation
 
-- **Icon Strategy Overview:** `docs/ICON_STRATEGY.md`
-- **Complete Icon Guide:** `docs/ICON_LOCATIONS.md`
-- **MSIX Packaging:** `docs/MSIX_PACKAGING.md`
+- **Branding & icons:** `docs/branding/icons.md`
+- **MSIX packaging:** `docs/distribution/msix-packaging.md`
 
 ---
 

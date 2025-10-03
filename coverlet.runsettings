@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat code coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+          <ExcludeByFile>
+            <!-- Exclude source-generated files -->
+            **\obj\**\*.g.cs
+            **\*.Designer.cs
+            **\CommunityToolkit.Mvvm.SourceGenerators\**\*.g.cs
+            **/obj/**/*.g.cs
+            **/*.Designer.cs
+            **/CommunityToolkit.Mvvm.SourceGenerators/**/*.g.cs
+          </ExcludeByFile>
+          <ExcludeByAttribute>
+            <!-- Exclude code with these attributes -->
+            Obsolete
+            GeneratedCodeAttribute
+            CompilerGeneratedAttribute
+          </ExcludeByAttribute>
+          <SkipAutoProps>true</SkipAutoProps>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>

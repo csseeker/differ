@@ -243,4 +243,4 @@ Before each release:
 
 ---
 
-*These guidelines are living documents that evolve with the project. They serve as our compass to ensure we build something we can be proud of - simple, robust, and extensible.*
+*These guidelines are living documents that evolve with the project. They serve as my compass to ensure I build something I can be proud of - simple, robust, and extensible.*

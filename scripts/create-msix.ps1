@@ -40,26 +40,66 @@ function Resolve-Tool {
         return $resolved.Source
     }
 
-    # 3. For makeappx.exe, search in common Windows SDK locations across all drives
-    if ($ToolName -eq "makeappx.exe") {
-        Write-Host "  Searching for makeappx.exe in Windows SDK locations..." -ForegroundColor Gray
-        
+    # 3. Search common Windows SDK locations across all drives for known tools
+    $searchPatterns = @()
+    switch ($ToolName.ToLowerInvariant()) {
+        'makeappx.exe' {
+            $searchPatterns = @(
+                "Program Files (x86)\Windows Kits\10\bin\*\x64\makeappx.exe",
+                "Program Files\Windows Kits\10\bin\*\x64\makeappx.exe",
+                "Windows Kits\10\bin\*\x64\makeappx.exe"
+            )
+        }
+        'signtool.exe' {
+            $searchPatterns = @(
+                # ONLY search Windows Kits 10 (modern versions that work)
+                "Program Files (x86)\Windows Kits\10\bin\*\x64\signtool.exe",
+                "Program Files\Windows Kits\10\bin\*\x64\signtool.exe",
+                "Windows Kits\10\bin\*\x64\signtool.exe",
+                "Program Files (x86)\Windows Kits\10\App Certification Kit\signtool.exe",
+                "Program Files\Windows Kits\10\App Certification Kit\signtool.exe",
+                "Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\*\x64\signtool.exe",
+                "Program Files\Microsoft SDKs\Windows\v10.0A\bin\*\x64\signtool.exe"
+                # NOTE: Explicitly NOT searching ClickOnce\SignTool - version 4.00 is too old and broken
+            )
+        }
+    }
+
+    if ($searchPatterns.Count -gt 0) {
+        Write-Host "  Searching for $ToolName in Windows SDK locations..." -ForegroundColor Gray
+
         # Get all fixed drives (C:, D:, etc.)
         $drives = Get-PSDrive -PSProvider FileSystem | Where-Object { $_.Root -match '^[A-Z]:\\$' }
-        
-        # Common Windows SDK paths (relative to drive root)
-        $commonPaths = @(
-            "Program Files (x86)\Windows Kits\10\bin\*\x64\makeappx.exe",
-            "Program Files\Windows Kits\10\bin\*\x64\makeappx.exe",
-            "Windows Kits\10\bin\*\x64\makeappx.exe"
-        )
-        
+
         foreach ($drive in $drives) {
-            foreach ($pathPattern in $commonPaths) {
+            foreach ($pathPattern in $searchPatterns) {
                 $fullPath = Join-Path $drive.Root $pathPattern
-                $found = Get-ChildItem -Path $fullPath -ErrorAction SilentlyContinue | Select-Object -First 1
+                $found = Get-ChildItem -Path $fullPath -File -ErrorAction SilentlyContinue |
+                    Sort-Object LastWriteTime -Descending |
+                    Select-Object -First 1
                 if ($found) {
-                    Write-Host "  [OK] Found makeappx.exe at: $($found.FullName)" -ForegroundColor Green
+                    Write-Host "  [OK] Found $ToolName at: $($found.FullName)" -ForegroundColor Green
+                    
+                    # Check signtool version and warn if too old
+                    if ($ToolName.ToLowerInvariant() -eq 'signtool.exe') {
+                        $versionInfo = $found.VersionInfo
+                        $version = $versionInfo.FileVersion
+                        Write-Host "  Using signtool version $version" -ForegroundColor Gray
+                        
+                        # Extract SDK version from path (e.g., 10.0.26100.0)
+                        if ($found.FullName -match '\\(\d+\.\d+\.\d+\.\d+)\\') {
+                            $sdkVersion = $matches[1]
+                            Write-Host "  SDK Version: $sdkVersion" -ForegroundColor Gray
+                        }
+                        
+                        # Warn if it's the old ClickOnce version
+                        if ($found.FullName -like "*ClickOnce*") {
+                            Write-Host "  [WARNING] This is an OLD ClickOnce signtool (2015-2016) that may not work!" -ForegroundColor Yellow
+                            Write-Host "            Continuing search for newer version..." -ForegroundColor Yellow
+                            continue  # Keep searching for a better version
+                        }
+                    }
+                    
                     return $found.FullName
                 }
             }
@@ -67,6 +107,84 @@ function Resolve-Tool {
     }
 
     throw "Unable to locate $ToolName. Ensure it is installed and in PATH, or provide an explicit path via script parameters."
+}
+
+function Test-SigntoolVersion {
+    param(
+        [string]$SigntoolPath
+    )
+    
+    $versionInfo = (Get-Item $SigntoolPath).VersionInfo
+    $version = $versionInfo.FileVersion
+    
+    # Reject old versions that don't work with modern certificates
+    if ($version -like "4.*" -or $version -like "10.0.10*") {
+        return $false
+    }
+    
+    return $true
+}
+
+function Get-VersionFromFileVersionInfo {
+    param(
+        [System.Diagnostics.FileVersionInfo]$VersionInfo
+    )
+
+    if ($null -eq $VersionInfo) {
+        return $null
+    }
+
+    $numericCandidates = @(
+        @{ Major = $VersionInfo.ProductMajorPart; Minor = $VersionInfo.ProductMinorPart; Build = $VersionInfo.ProductBuildPart; Private = $VersionInfo.ProductPrivatePart },
+        @{ Major = $VersionInfo.FileMajorPart; Minor = $VersionInfo.FileMinorPart; Build = $VersionInfo.FileBuildPart; Private = $VersionInfo.FilePrivatePart }
+    )
+
+    foreach ($candidate in $numericCandidates) {
+        if ($candidate.Major -gt 0) {
+            $parts = @(
+                [Math]::Max($candidate.Major, 0),
+                [Math]::Max($candidate.Minor, 0),
+                [Math]::Max($candidate.Build, 0),
+                [Math]::Max($candidate.Private, 0)
+            )
+            return [Version]::new($parts[0], $parts[1], $parts[2], $parts[3])
+        }
+    }
+
+    $stringCandidates = @($VersionInfo.ProductVersion, $VersionInfo.FileVersion) |
+        Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
+
+    foreach ($candidate in $stringCandidates) {
+        $match = [regex]::Match($candidate, '\d+(\.\d+){1,3}')
+        if ($match.Success) {
+            $parsed = $null
+            if ([Version]::TryParse($match.Value, [ref]$parsed)) {
+                return $parsed
+            }
+        }
+    }
+
+    return $null
+}
+
+function ConvertFrom-SecureStringToPlainText {
+    param(
+        [System.Security.SecureString]$SecureString
+    )
+
+    if ($null -eq $SecureString) {
+        return $null
+    }
+
+    $bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($SecureString)
+    try {
+        return [Runtime.InteropServices.Marshal]::PtrToStringUni($bstr)
+    }
+    finally {
+        if ($bstr -ne [IntPtr]::Zero) {
+            [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr)
+        }
+    }
 }
 
 if (-not (Test-Path $PublishDir)) {
@@ -214,6 +332,23 @@ Write-Host "Packing MSIX to $msixPath"
 
 if ($Sign) {
     $signtoolExe = Resolve-Tool -ToolName 'signtool.exe' -HintPath $SigntoolPath
+    try {
+        $signtoolItem = Get-Item -Path $signtoolExe -ErrorAction Stop
+    } catch {
+        throw "Unable to retrieve signtool metadata from '$signtoolExe'. Install the Windows 10 SDK and try again. Details: $($_.Exception.Message)"
+    }
+
+    $versionInfo = $signtoolItem.VersionInfo
+    $signtoolVersion = Get-VersionFromFileVersionInfo -VersionInfo $versionInfo
+    if ($null -eq $signtoolVersion) {
+        $reportedVersion = $versionInfo.FileVersion
+        throw "Signtool at '$signtoolExe' does not expose a parsable version ('$reportedVersion'). Install the Windows 10 SDK (10.0.17763 or newer)."
+    }
+    Write-Host "  Using signtool version $signtoolVersion" -ForegroundColor Gray
+
+    if ($signtoolVersion.Major -lt 10) {
+        throw "Signtool version $signtoolVersion is too old for MSIX signing. Install the Windows 10 SDK (10.0.17763 or newer)."
+    }
     if (-not $CertificatePath) {
         throw "CertificatePath is required when -Sign is specified."
     }
@@ -221,17 +356,74 @@ if ($Sign) {
         throw "Certificate '$CertificatePath' not found."
     }
 
-    $signArgs = @('sign', '/tr', $TimestampUrl, '/td', 'SHA256', '/fd', 'SHA256', '/f', $CertificatePath, $msixPath)
-    if ($CertificatePassword) {
-        $signArgs += '/p'
-        $signArgs += $CertificatePassword
+    $passwordToUse = $CertificatePassword
+    if (-not $passwordToUse) {
+        $envPassword = $env:DIFFER_CERT_PASSWORD
+        if (-not [string]::IsNullOrWhiteSpace($envPassword)) {
+            $passwordToUse = $envPassword
+        }
+    }
+
+    # Try to load certificate without password first
+    $needsPassword = $false
+    try {
+        $testCert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($CertificatePath, "")
+        Write-Host "  Certificate loaded (no password required)" -ForegroundColor Gray
+    } catch {
+        $needsPassword = $true
+    }
+
+    # Only prompt for password if certificate actually needs one and we're interactive
+    if ($needsPassword -and -not $passwordToUse -and [Environment]::UserInteractive) {
+        Write-Host "Certificate password required." -ForegroundColor Gray
+        $securePwd = Read-Host -Prompt 'Certificate password' -AsSecureString
+        $plainPwd = ConvertFrom-SecureStringToPlainText -SecureString $securePwd
+        if (-not [string]::IsNullOrWhiteSpace($plainPwd)) {
+            $passwordToUse = $plainPwd
+        }
     }
 
     Write-Host "Signing MSIX package..."
+    
+    $signArgs = @('sign', '/tr', $TimestampUrl, '/td', 'SHA256', '/fd', 'SHA256', '/f', $CertificatePath, $msixPath)
+    if (-not [string]::IsNullOrWhiteSpace($passwordToUse)) {
+        $signArgs += '/p'
+        $signArgs += $passwordToUse
+    }
+    
     & $signtoolExe @signArgs | Write-Host
-
+    
+    if ($LASTEXITCODE -ne 0) {
+        $errorMsg = "signtool failed to sign the package (Exit code: $LASTEXITCODE)"
+        
+        # Provide specific guidance based on common error codes
+        if ($LASTEXITCODE -eq 1) {
+            $errorMsg += "`n`n[COMMON CAUSES]"
+            $errorMsg += "`n  1. Old signtool version (check version above)"
+            $errorMsg += "`n     Solution: Install latest Windows 10 SDK"
+            $errorMsg += "`n     Run: .\scripts\install-windows-sdk.ps1"
+            $errorMsg += "`n`n  2. Certificate missing private key"
+            $errorMsg += "`n     Solution: Recreate certificate"
+            $errorMsg += "`n     Run: .\scripts\recreate-cert-quick.ps1"
+            $errorMsg += "`n`n  3. Incorrect password (certificate has no password)"
+            $errorMsg += "`n     Solution: Press ENTER when prompted for password"
+        }
+        
+        throw $errorMsg
+    }
+    
+    Write-Host "  [OK] Package signed successfully" -ForegroundColor Green
+    
+    # Verify signature
     Write-Host "Verifying signature..."
     & $signtoolExe verify /pa $msixPath | Write-Host
+    
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "  [OK] Signature verified" -ForegroundColor Green
+    } else {
+        Write-Host "  [WARNING] Signature verification returned exit code: $LASTEXITCODE" -ForegroundColor Yellow
+        Write-Host "            The package may still be signed correctly." -ForegroundColor Gray
+    }
 }
 
 Write-Host "MSIX package created at $msixPath"
