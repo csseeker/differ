@@ -6,20 +6,26 @@ This guide gets you from download to your first comparison in a couple of minute
 
 | Option | Recommended for | Highlight |
 | --- | --- | --- |
-| **One-click MSIX installer** | Anyone who wants Start Menu integration and automatic updates | Run `Install-Differ.bat` and follow the prompts. |
+| **MSIX installer** | Anyone who wants Start Menu integration | Install certificate, then double-click the MSIX. |
 | **Portable ZIP** | Locked-down environments or quick evaluations | Extract the ZIP and run `Differ.App.exe` – no admin rights required. |
 
-## 2. One-click install (TL;DR)
+## 2. MSIX installation (TL;DR)
 
-1. Download these four files from the [latest release](https://github.com/csseeker/differ/releases):
-   - `Differ_*.msix`
+**First-time users:** You must install the signing certificate before installing the MSIX.
+
+1. Download these files from the [latest release](https://github.com/csseeker/differ/releases):
+   - `Differ_*_x64.msix`
    - `differ-signing-cert.cer`
-   - `install-differ.ps1`
-   - `Install-Differ.bat`
-2. Put all four files in the same folder.
-3. Double-click `Install-Differ.bat` and consent to the Administrator prompt.
-4. Read the plan, press **Y**, and let the script finish the certificate and MSIX setup.
-5. Press **Windows**, type **Differ**, and launch the app.
+   - `install-certificate.ps1`
+2. **Install the certificate (one-time setup):**
+   - Right-click PowerShell and select "Run as Administrator"
+   - Navigate to your downloads folder
+   - Run: `powershell -ExecutionPolicy Bypass -File install-certificate.ps1`
+   - Review and confirm the certificate installation
+3. **Install Differ:**
+   - Double-click `Differ_*_x64.msix`
+   - Click "Install"
+4. Press **Windows**, type **Differ**, and launch the app.
 
 If Windows blocks the install or SmartScreen complains, head to the [troubleshooting section](../user-guide/installing-differ.md#troubleshooting) for quick fixes.
 

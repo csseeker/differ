@@ -18,31 +18,28 @@ Get the latest version from the [releases page](https://github.com/csseeker/diff
 
 #### MSIX Installer (Start Menu Integration)
 
-**🚀 Quick Install Method** (Easiest - Recommended):
-1. Download these 4 files:
-   - `Differ_*_x64.msix`
-   - `differ-signing-cert.cer`
-   - `install-differ.ps1`
-   - `Install-Differ.bat` ⭐ **Start here!**
+**First-time users:** You must install the signing certificate before installing the MSIX.
 
-2. Put all files in the same folder
+1. Download these files from the release assets:
+   - `Differ_*_x64.msix` - The installer
+   - `differ-signing-cert.cer` - The signing certificate
+   - `install-certificate.ps1` - The installation script
 
-3. Double-click `Install-Differ.bat`
+2. **Install the certificate (one-time setup):**
+   - Right-click PowerShell and select "Run as Administrator"
+   - Navigate to your downloads folder
+   - Run: `powershell -ExecutionPolicy Bypass -File install-certificate.ps1`
+   - Review and confirm the certificate installation
 
-4. Click "Yes" for Administrator permission
+3. **Install Differ:**
+   - Double-click `Differ_*_x64.msix`
+   - Click "Install"
 
-5. Follow the prompts - it installs everything automatically!
+4. **Updating to newer versions:**
+   - No need to reinstall the certificate
+   - Simply download and install the new MSIX
 
-**Manual Method** (for advanced users):
-- First time: Install certificate (requires Admin)
-  ```powershell
-  # Right-click PowerShell → Run as Administrator
-  powershell -ExecutionPolicy Bypass -File install-certificate.ps1
-  ```
-- Then: Double-click the `.msix` file to install
-- Future updates: Just install new MSIX (certificate stays)
-
-Need more detail or troubleshooting help? Check the [Installing Differ guide](docs/user-guide/installing-differ.md).
+For detailed instructions, see [Installing Differ](docs/user-guide/installing-differ.md).
 
 ## Features
 
