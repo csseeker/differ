@@ -16,7 +16,8 @@ Then open `TestResults/coverage-report/index.html` in your browser.
 
 ## Current Coverage Status
 
-**Last Updated:** October 4, 2025
+**Last Updated:** October 4, 2025  
+**Note:** Coverage should be re-measured and updated after each release or significant code changes.
 
 - **Overall Coverage:** 40.2%
 - **Line Coverage:** 707/1758 lines

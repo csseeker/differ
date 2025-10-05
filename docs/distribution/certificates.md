@@ -62,6 +62,7 @@ Upload the following to each GitHub release:
 - Store the `.pfx` in encrypted storage or a password manager.
 - Use CI secrets (GitHub Actions, Azure Key Vault) when automating signing.
 - Rotate the certificate before it expires (current thumbprint `4397B8F5AB16B21A83F1691E11DFA68C91C75E6C`, valid through 3 Oct 2028).
+- Review certificate expiration dates annually and plan for rotation well in advance.
 
 `.gitignore` already blocks `.pfx` files. Keep distributions to `.cer` only.
 

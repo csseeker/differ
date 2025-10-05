@@ -6,16 +6,28 @@ This playbook consolidates release preparation, packaging, QA, and coverage expe
 
 - Follow semantic versioning (`vMAJOR.MINOR.PATCH`).
 - Keep `master` releasable; create a release branch only when stabilising.
-- Update `<Version>` in each `*.csproj`, the MSIX manifest (`Package.appxmanifest`), and any other versioned assets.
+- Update `<Version>` in the following locations **before building**:
+  - `src/Differ.App/Differ.App.csproj` - `<AssemblyVersion>` and `<FileVersion>`
+  - `src/Differ.Package/Package.appxmanifest` - `<Identity Version="...">`
+  - Ensure all versions match to avoid confusion (e.g., all should be `0.2.0.0` for v0.2.0 release)
 - Maintain `CHANGELOG.md`. Move items from **Unreleased** to the new version section during release.
+- Update `README.md` to reference the new version as "Latest Release"
 
 ## 2. Pre-release checklist
 
 - [ ] CI is green on `master`.
-- [ ] Version numbers updated everywhere.
+- [ ] Version numbers updated **and aligned** in all locations (see section 1).
 - [ ] Changelog entry written (use [release notes template](../RELEASE_NOTES_TEMPLATE.md)).
 - [ ] Documentation and screenshots reviewed.
 - [ ] Targeted GitHub issues closed or deferred.
+- [ ] `README.md` references the new version as latest.
+
+**Version Alignment Check:**
+```powershell
+# Quick verification script - all should show the same version
+Select-String -Path "src/Differ.App/Differ.App.csproj" -Pattern "AssemblyVersion"
+Select-String -Path "src/Differ.Package/Package.appxmanifest" -Pattern "Version="
+```
 
 ## 3. Local validation
 

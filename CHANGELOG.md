@@ -6,6 +6,44 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.1.2-alpha] - 2025-10-04
+
+### Added
+- **Distribution & Installation Improvements:**
+  - One-click installer (`Install-Differ.bat`) for simplified MSIX installation
+  - PowerShell certificate installation script (`install-certificate.ps1`)
+  - Automated certificate import to both Trusted Root and Trusted People stores
+  - Complete installer package with certificate and scripts in release artifacts
+  
+### Changed
+- **Documentation Reorganization:**
+  - Consolidated documentation structure with clear navigation paths
+  - Moved historical sprint notes to `docs/history/sprints/`
+  - Moved old release notes to `docs/history/releases/`
+  - Created organized documentation hub at `docs/index.md`
+  - Split documentation into logical sections: `distribution/`, `engineering/`, `overview/`, `user-guide/`, `branding/`
+  - Updated all documentation to reflect new one-click installation process
+
+### Improved
+- **Certificate & Signing Infrastructure:**
+  - Resolved MSIX installation error `0x800B0100` by installing certificate to both required stores
+  - Improved certificate installation documentation with troubleshooting guides
+  - Enhanced signing scripts with better error reporting and validation
+  - Updated release scripts to include all necessary certificate files
+
+### Documentation
+- `docs/distribution/certificates.md` - Comprehensive certificate management guide
+- `docs/distribution/msix-packaging.md` - MSIX packaging and signing documentation
+- `docs/distribution/release-playbook.md` - Complete release process guide
+- `docs/user-guide/installing-differ.md` - Detailed installation instructions
+- `docs/index.md` - Central documentation hub with clear navigation
+- `docs/history/README.md` - Archive index for historical documents
+
+### Notes
+- This release primarily focuses on distribution infrastructure and documentation improvements
+- No functional code changes to the application itself
+- All features from v0.0.2-alpha remain unchanged
+
 ## [0.0.2-alpha] - 2025-10-01
 
 ### Added

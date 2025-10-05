@@ -21,9 +21,9 @@ Welcome to the Differ knowledge base. Pick a path below based on what you need t
 
 ## Historical references
 
-- [Sprint archive](archive/README.md#sprint-notes)
-- [Release notes](archive/README.md#release-history)
-- [Other historical notes](archive/README.md#additional-history)
+- [Sprint archive](history/README.md#sprint-notes)
+- [Release notes](history/README.md#release-history)
+- [Other historical notes](history/README.md#additional-history)
 
 ---
 
